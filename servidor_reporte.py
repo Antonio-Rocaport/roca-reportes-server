@@ -1,166 +1,142 @@
-import os
-import json
-from datetime import datetime
+#!/usr/bin/env python3
+"""
+Servidor Flask para gestionar reportes de Roca Port MDA47
+Recibe PDFs y los sube a Google Drive automáticamente
+"""
+
 from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
+from flask_cors import CORS
+from google.oauth2.service_account import Credentials
+from google.auth.transport.requests import Request
+from google.auth.exceptions import RefreshError
+import os
+import io
+import json
 import base64
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+import logging
 
-app = Flask(__name__)
+app = Flask(_name_)
+CORS(app)
 
-# Configuración
-UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'reportes')
-MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(_name_)
 
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+# ID de tu carpeta Drive
+DRIVE_FOLDER_ID = "1bu93DnzhCZuViC-kE85xFl4LXeeHXL4P"
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# Variables globales para credenciales
+drive_service = None
+credentials = None
 
-
-@app.route('/api/reportes', methods=['POST'])
-def recibir_reporte():
-    """Recibe reporte de mantenimiento desde app web"""
+def inicializar_drive():
+    """Inicializa conexión a Google Drive"""
+    global drive_service, credentials
     try:
-        datos = request.get_json()
+        # Obtener credenciales desde variable de entorno
+        creds_json = os.environ.get('GOOGLE_CREDENTIALS')
         
-        if not datos:
-            return jsonify({'error': 'No hay datos'}), 400
+        if not creds_json:
+            logger.error("❌ Variable GOOGLE_CREDENTIALS no encontrada")
+            return False
         
-        # Validar campos requeridos
-        campos_requeridos = ['repNo', 'fecha', 'responsable', 'supervisor', 'tag']
-        for campo in campos_requeridos:
-            if campo not in datos or not datos[campo]:
-                return jsonify({'error': f'Falta campo requerido: {campo}'}), 400
+        creds_dict = json.loads(creds_json)
         
-        # Crear nombre de archivo
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        rep_no = secure_filename(datos['repNo'])
-        filename = f"reporte_{rep_no}_{timestamp}.json"
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        credentials = Credentials.from_service_account_info(
+            creds_dict,
+            scopes=['https://www.googleapis.com/auth/drive.file']
+        )
         
-        # Procesar fotos (base64 a archivos)
-        fotos_guardadas = []
-        if 'fotos' in datos and datos['fotos']:
-            for idx, foto_b64 in enumerate(datos['fotos']):
-                if foto_b64.startswith('data:image'):
-                    # Extraer base64 puro
-                    foto_data = foto_b64.split(',')[1]
-                    foto_filename = f"reporte_{rep_no}_{timestamp}_foto{idx+1}.jpg"
-                    foto_filepath = os.path.join(app.config['UPLOAD_FOLDER'], foto_filename)
-                    
-                    with open(foto_filepath, 'wb') as f:
-                        f.write(base64.b64decode(foto_data))
-                    fotos_guardadas.append(foto_filename)
+        drive_service = build('drive', 'v3', credentials=credentials)
+        logger.info("✅ Google Drive conectado correctamente")
+        return True
+    except Exception as e:
+        logger.error(f"❌ Error al conectar Drive: {e}")
+        return False
+
+@app.route('/api/upload-pdf', methods=['POST'])
+def upload_pdf():
+    """Recibe PDF en base64 y lo sube a Drive"""
+    try:
+        data = request.json
+        pdf_base64 = data.get('pdf')
+        filename = data.get('filename', 'reporte.pdf')
         
-        # Guardar datos sin firmas en base64 (reducir tamaño)
-        datos_guardados = datos.copy()
-        datos_guardados['fotos'] = fotos_guardadas
+        if not pdf_base64:
+            return jsonify({'error': 'No PDF data provided'}), 400
         
-        # Guardar JSON
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(datos_guardados, f, ensure_ascii=False, indent=2)
+        if not drive_service:
+            return jsonify({'error': 'Drive no inicializado'}), 500
+        
+        # Convertir base64 a bytes
+        pdf_bytes = base64.b64decode(pdf_base64.split(',')[1] if ',' in pdf_base64 else pdf_base64)
+        
+        # Crear archivo en Drive
+        file_metadata = {
+            'name': filename,
+            'parents': [DRIVE_FOLDER_ID]
+        }
+        
+        media = MediaIoBaseUpload(
+            io.BytesIO(pdf_bytes),
+            mimetype='application/pdf',
+            resumable=True
+        )
+        
+        file = drive_service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields='id, webViewLink'
+        ).execute()
+        
+        logger.info(f"✅ PDF subido: {filename} (ID: {file.get('id')})")
         
         return jsonify({
             'success': True,
-            'mensaje': 'Reporte recibido correctamente',
-            'reporte_id': rep_no,
-            'timestamp': timestamp,
-            'archivo': filename
-        }), 201
-    
+            'message': f'Reporte guardado en Drive: {filename}',
+            'fileId': file.get('id'),
+            'link': file.get('webViewLink')
+        }), 200
+        
     except Exception as e:
+        logger.error(f"❌ Error al subir PDF: {e}")
         return jsonify({'error': str(e)}), 500
 
-
-@app.route('/api/reportes/<rep_no>', methods=['GET'])
-def obtener_reporte(rep_no):
-    """Obtiene un reporte por número"""
-    try:
-        rep_no = secure_filename(rep_no)
-        archivos = os.listdir(app.config['UPLOAD_FOLDER'])
-        
-        # Buscar archivo que coincida
-        for archivo in archivos:
-            if archivo.startswith(f"reporte_{rep_no}_") and archivo.endswith('.json'):
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], archivo)
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    datos = json.load(f)
-                return jsonify(datos), 200
-        
-        return jsonify({'error': 'Reporte no encontrado'}), 404
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/reportes', methods=['GET'])
-def listar_reportes():
-    """Lista todos los reportes guardados"""
-    try:
-        archivos = os.listdir(app.config['UPLOAD_FOLDER'])
-        reportes = []
-        
-        for archivo in archivos:
-            if archivo.endswith('.json'):
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], archivo)
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    datos = json.load(f)
-                    reportes.append({
-                        'repNo': datos.get('repNo'),
-                        'fecha': datos.get('fecha'),
-                        'responsable': datos.get('responsable'),
-                        'tag': datos.get('tag'),
-                        'archivo': archivo
-                    })
-        
-        return jsonify({'reportes': reportes, 'total': len(reportes)}), 200
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/foto/<filename>', methods=['GET'])
-def obtener_foto(filename):
-    """Descarga una foto del reporte"""
-    try:
-        filename = secure_filename(filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        
-        if not os.path.exists(filepath):
-            return jsonify({'error': 'Foto no encontrada'}), 404
-        
-        with open(filepath, 'rb') as f:
-            foto_data = f.read()
-        
-        return foto_data, 200, {'Content-Type': 'image/jpeg'}
-    
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
 def health():
-    """Health check para Render"""
-    return jsonify({'status': 'OK', 'timestamp': datetime.now().isoformat()}), 200
-
+    """Verificar que el servidor está corriendo"""
+    drive_ok = drive_service is not None
+    return jsonify({
+        'status': 'ok',
+        'drive_connected': drive_ok
+    }), 200
 
 @app.route('/', methods=['GET'])
-def home():
+def index():
     """Página de inicio"""
     return jsonify({
-        'nombre': 'Servidor Reportes Mantenimiento Roca Port MDA47',
+        'servidor': 'Reporte Roca Port MDA47',
         'version': '1.0',
         'endpoints': {
-            'POST /api/reportes': 'Enviar nuevo reporte',
-            'GET /api/reportes': 'Listar todos los reportes',
-            'GET /api/reportes/<rep_no>': 'Obtener reporte por número',
-            'GET /api/foto/<filename>': 'Descargar foto',
-            'GET /health': 'Health check'
+            '/api/upload-pdf': 'POST - Subir PDF a Drive',
+            '/api/health': 'GET - Verificar estado'
         }
     }), 200
 
-
-if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
-    debug = os.getenv('FLASK_ENV') == 'development'
-    app.run(host='0.0.0.0', port=port, debug=debug)
+if _name_ == '_main_':
+    # Inicializar Drive
+    if inicializar_drive():
+        port = int(os.environ.get('PORT', 5000))
+        debug_mode = os.environ.get('FLASK_ENV', 'production') == 'development'
+        logger.info(f"🚀 Servidor iniciado en puerto {port}")
+        app.run(
+            host='0.0.0.0',
+            port=port,
+            debug=debug_mode,
+            use_reloader=False
+        )
+    else:
+        logger.error("❌ No se pudo inicializar. Verifica las credenciales.")
+        exit(1)
