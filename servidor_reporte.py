@@ -36,7 +36,8 @@ def inicializar_drive():
     global drive_service, credentials
     try:
         # Obtener credenciales desde variable de entorno
-        creds_json = os.environ.get('GOOGLE_CREDENTIALS')
+        with open('/etc/secrets/google-creds.json', 'r') as f:
+    creds_json = f.read()
         
         if not creds_json:
             logger.error("❌ Variable GOOGLE_CREDENTIALS no encontrada")
