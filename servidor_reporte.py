@@ -16,7 +16,20 @@ from googleapiclient.http import MediaIoBaseUpload
 import logging
 
 app = Flask(__name__)
-CORS(app)
+
+# ⭐ CONFIGURAR CORS CORRECTAMENTE
+CORS(app, 
+     resources={r"/api/*": {"origins": "*"}},
+     allow_headers=["Content-Type"],
+     methods=["GET", "POST", "OPTIONS"])
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    return response
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -36,12 +49,10 @@ def inicializar_drive():
         ruta_secreto = '/etc/secrets/google-creds.json'
         logger.info(f"🔍 Buscando credenciales en: {ruta_secreto}")
         
-        # Verificar si el archivo existe
         if not os.path.exists(ruta_secreto):
             logger.error(f"❌ Archivo no encontrado: {ruta_secreto}")
             return False
         
-        # Leer archivo
         with open(ruta_secreto, 'r') as f:
             creds_json = f.read()
         
@@ -49,16 +60,13 @@ def inicializar_drive():
             logger.error("❌ Archivo de credenciales vacío")
             return False
         
-        # Parsear JSON
         creds_dict = json.loads(creds_json)
         
-        # Crear credenciales
         credentials = Credentials.from_service_account_info(
             creds_dict,
             scopes=['https://www.googleapis.com/auth/drive.file']
         )
         
-        # Construir servicio
         drive_service = build('drive', 'v3', credentials=credentials)
         logger.info("✅ Google Drive conectado correctamente")
         return True
@@ -73,14 +81,17 @@ def inicializar_drive():
         logger.error(f"❌ Error al conectar Drive: {e}", exc_info=True)
         return False
 
-# ⭐ INICIALIZAR DRIVE APENAS SE CARGA LA APP (fuera de if __name__)
+# ⭐ INICIALIZAR DRIVE APENAS SE CARGA LA APP
 logger.info("🚀 Inicializando Drive...")
 if not inicializar_drive():
     logger.warning("⚠️ Drive no inicializado al inicio")
 
-@app.route('/api/upload-pdf', methods=['POST'])
+@app.route('/api/upload-pdf', methods=['POST', 'OPTIONS'])
 def upload_pdf():
     """Recibe PDF en base64 y lo sube a Drive"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     try:
         data = request.json
         pdf_base64 = data.get('pdf')
@@ -126,9 +137,12 @@ def upload_pdf():
         logger.error(f"❌ Error al subir PDF: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
-@app.route('/api/health', methods=['GET'])
+@app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health():
     """Verificar que el servidor está corriendo"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
     drive_ok = drive_service is not None
     return jsonify({
         'status': 'ok',
