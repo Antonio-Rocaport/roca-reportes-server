@@ -4,7 +4,7 @@ Servidor Flask para gestionar reportes de Roca Port MDA47
 Recibe PDFs y los sube a Google Drive automáticamente
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template_string
 from flask_cors import CORS
 from google.oauth2.service_account import Credentials
 import os
@@ -157,9 +157,20 @@ def index():
         'version': '1.0',
         'endpoints': {
             '/api/upload-pdf': 'POST - Subir PDF a Drive',
-            '/api/health': 'GET - Verificar estado'
+            '/api/health': 'GET - Verificar estado',
+            '/reporte': 'GET - Abrir formulario de reporte'
         }
     }), 200
+
+# ⭐ NUEVA RUTA PARA SERVIR EL FORMULARIO
+@app.route('/reporte')
+def servir_reporte():
+    """Sirve el formulario HTML del reporte"""
+    try:
+        with open('index.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return jsonify({'error': 'Archivo index.html no encontrado'}), 404
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
