@@ -17,12 +17,12 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 import logging
 
-app = Flask(_name_)
+app = Flask(__name__)
 CORS(app)
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(_name_)
+logger = logging.getLogger(__name__)
 
 # ID de tu carpeta Drive
 DRIVE_FOLDER_ID = "1bu93DnzhCZuViC-kE85xFl4LXeeHXL4P"
@@ -125,7 +125,7 @@ def index():
         }
     }), 200
 
-if _name_ == '_main_':
+if __name__ == '__main__':
     # Inicializar Drive
     if inicializar_drive():
         port = int(os.environ.get('PORT', 5000))
