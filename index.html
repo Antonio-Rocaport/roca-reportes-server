@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Mantenimiento - Roca Port MDA47</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 10px; }
+        .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+        .header { background: white; padding: 15px; border-bottom: 3px solid #003d82; text-align: center; }
+        .logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .logo-roca { font-weight: bold; color: #003d82; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .dot-logo { width: 16px; height: 16px; background: #003d82; border-radius: 0 0 16px 0; }
+        .logo-mda { font-weight: bold; color: #0d9488; font-size: 14px; }
+        .header h1 { color: #003d82; font-size: 18px; margin: 8px 0; }
+        .form-content { padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; font-size: 13px; }
+        input[type="text"], input[type="date"], input[type="number"], textarea, select { 
+            width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; 
+        }
+        textarea { resize: vertical; min-height: 60px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+        .checkbox-group label { margin: 0; display: flex; align-items: center; font-weight: normal; }
+        input[type="checkbox"] { margin-right: 5px; width: 16px; height: 16px; cursor: pointer; }
+        .table-section { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 4px; border: 1px solid #ddd; }
+        .table-section h3 { color: #003d82; font-size: 14px; margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { background: #003d82; color: white; padding: 8px; text-align: left; font-weight: bold; }
+        td { padding: 8px; border-bottom: 1px solid #ddd; }
+        tr:nth-child(even) { background: #f0f0f0; }
+        input.table-input { width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 2px; font-size: 11px; }
+        .photo-section { margin-top: 20px; }
+        .photo-input { margin-bottom: 15px; }
+        .photo-label { font-weight: bold; margin-bottom: 5px; }
+        .photo-preview { width: 100%; height: 150px; border: 2px solid #ddd; border-radius: 4px; object-fit: cover; margin-bottom: 5px; }
+        .signatures-section { margin-top: 20px; padding-top: 20px; border-top: 2px solid #003d82; }
+        .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .signature-block { }
+        .signature-label { font-weight: bold; color: #003d82; margin-bottom: 8px; font-size: 13px; }
+        canvas { border: 2px solid #ddd; border-radius: 4px; display: block; width: 100%; height: 100px; cursor: crosshair; background: white; touch-action: none; }
+        .btn-clear-sig { background-color: #6c757d; color: white; padding: 6px 10px; font-size: 11px; border: none; border-radius: 3px; cursor: pointer; margin-top: 5px; }
+        .btn-clear-sig:hover { background-color: #545b62; }
+        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        button { padding: 10px; font-size: 13px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.3s; }
+        .btn-save { background-color: #28a745; color: white; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-load { background-color: #007bff; color: white; }
+        .btn-load:hover { background-color: #0056b3; }
+        .btn-pdf { background-color: #dc3545; color: white; width: 100%; }
+        .btn-pdf:hover { background-color: #c82333; }
+        .btn-clear { background-color: #6c757d; color: white; }
+        .btn-clear:hover { background-color: #5a6268; }
+        .status { margin-top: 10px; padding: 10px; border-radius: 4px; text-align: center; font-weight: bold; display: none; }
+        .status.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+        .status.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+        .status.info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; display: block; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-row">
+                <div class="logo-roca">
+                    <span class="dot-logo"></span>
+                    ROCA PORT
+                </div>
+                <div class="logo-mda">MDA47</div>
+            </div>
+            <h1>Reporte de Mantenimiento</h1>
+            <p style="color: #666; font-size: 12px;">Proyecto MDA47 - Campo</p>
+        </div>
+
+        <div class="form-content">
+            <form id="reportForm">
+                <!-- INFORMACIÓN BÁSICA -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="repNo">No. Reporte *</label>
+                        <input type="text" id="repNo" name="repNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha">Fecha *</label>
+                        <input type="date" id="fecha" name="fecha" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="responsable">Responsable *</label>
+                        <input type="text" id="responsable" name="responsable" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="supervisor">Supervisor *</label>
+                        <input type="text" id="supervisor" name="supervisor" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tag">Tag Equipo *</label>
+                        <input type="text" id="tag" name="tag" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cliente">Cliente</label>
+                        <input type="text" id="cliente" name="cliente" value="HLB">
+                    </div>
+                </div>
+
+                <!-- TIPO Y DISCIPLINA -->
+                <div class="form-group">
+                    <label>Tipo de Mantenimiento *</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="tipo" value="Preventivo" checked> Preventivo</label>
+                        <label><input type="radio" name="tipo" value="Correctivo"> Correctivo</label>
+                        <label><input type="radio" name="tipo" value="Predictivo"> Predictivo</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Disciplina *</label>
+                    <div class="checkbox-group">
+                        <label><input type="radio" name="disciplina" value="Mecánica" checked> Mecánica</label>
+                        <label><input type="radio" name="disciplina" value="Eléctrica"> Eléctrica</label>
+                        <label><input type="radio" name="disciplina" value="Instrumentación"> Instrumentación</label>
+                    </div>
+                </div>
+
+                <!-- HORAS -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hhAsig">Horas Asignadas</label>
+                        <input type="number" id="hhAsig" name="hhAsig" step="0.5" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="hhEjec">Horas Ejecutadas</label>
+                        <input type="number" id="hhEjec" name="hhEjec" step="0.5" value="0">
+                    </div>
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div class="form-group">
+                    <label for="descripcion">Descripción del Trabajo Realizado *</label>
+                    <textarea id="descripcion" name="descripcion" required></textarea>
+                </div>
+
+                <!-- OBSERVACIONES -->
+                <div class="form-group">
+                    <label for="observaciones">Observaciones</label>
+                    <textarea id="observaciones" name="observaciones"></textarea>
+                </div>
+
+                <!-- ACEPTACIÓN -->
+                <div class="form-group">
+                    <label for="aceptaQuien">Aceptado por (Supervisor/Cliente) *</label>
+                    <input type="text" id="aceptaQuien" name="aceptaQuien" required>
+                </div>
+
+                <!-- BOTONES -->
+                <div class="button-group">
+                    <button type="button" class="btn-save" onclick="guardarLocal()">💾 Guardar Local</button>
+                    <button type="button" class="btn-load" onclick="cargarLocal()">📂 Cargar Local</button>
+                </div>
+                <button type="button" class="btn-pdf" onclick="exportarPDF()">📄 Exportar a PDF y Subir a Drive</button>
+                <button type="button" class="btn-clear" onclick="limpiar()">🗑️ Limpiar Formulario</button>
+
+                <!-- ESTADO -->
+                <div id="status" class="status"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ⭐ URL DEL SERVIDOR RENDER (IMPORTANTE)
+        const BACKEND_URL = "https://roca-reportes-server.onrender.com";
+
+        // Establecer fecha actual por defecto
+        document.getElementById('fecha').valueAsDate = new Date();
+
+        function mostrarEstado(mensaje, tipo) {
+            const status = document.getElementById('status');
+            status.textContent = mensaje;
+            status.className = `status ${tipo}`;
+            setTimeout(() => {
+                status.className = 'status';
+            }, 5000);
+        }
+
+        function guardarLocal() {
+            const formData = {
+                repNo: document.getElementById('repNo').value,
+                fecha: document.getElementById('fecha').value,
+                responsable: document.getElementById('responsable').value,
+                supervisor: document.getElementById('supervisor').value,
+                tag: document.getElementById('tag').value,
+                cliente: document.getElementById('cliente').value,
+                tipo: document.querySelector('input[name="tipo"]:checked').value,
+                disciplina: document.querySelector('input[name="disciplina"]:checked').value,
+                hhAsig: document.getElementById('hhAsig').value,
+                hhEjec: document.getElementById('hhEjec').value,
+                descripcion: document.getElementById('descripcion').value,
+                observaciones: document.getElementById('observaciones').value,
+                aceptaQuien: document.getElementById('aceptaQuien').value
+            };
+            localStorage.setItem('reporteFormData', JSON.stringify(formData));
+            mostrarEstado('✅ Datos guardados localmente', 'success');
+        }
+
+        function cargarLocal() {
+            const formData = JSON.parse(localStorage.getItem('reporteFormData'));
+            if (formData) {
+                document.getElementById('repNo').value = formData.repNo;
+                document.getElementById('fecha').value = formData.fecha;
+                document.getElementById('responsable').value = formData.responsable;
+                document.getElementById('supervisor').value = formData.supervisor;
+                document.getElementById('tag').value = formData.tag;
+                document.getElementById('cliente').value = formData.cliente;
+                document.querySelector(`input[name="tipo"][value="${formData.tipo}"]`).checked = true;
+                document.querySelector(`input[name="disciplina"][value="${formData.disciplina}"]`).checked = true;
+                document.getElementById('hhAsig').value = formData.hhAsig;
+                document.getElementById('hhEjec').value = formData.hhEjec;
+                document.getElementById('descripcion').value = formData.descripcion;
+                document.getElementById('observaciones').value = formData.observaciones;
+                document.getElementById('aceptaQuien').value = formData.aceptaQuien;
+                mostrarEstado('✅ Datos cargados desde almacenamiento local', 'success');
+            } else {
+                mostrarEstado('⚠️ No hay datos guardados', 'error');
+            }
+        }
+
+        function limpiar() {
+            document.getElementById('reportForm').reset();
+            document.getElementById('fecha').valueAsDate = new Date();
+            mostrarEstado('✅ Formulario limpiado', 'info');
+        }
+
+        function exportarPDF() {
+            const repNo = document.getElementById('repNo').value.trim();
+            if (!repNo) {
+                mostrarEstado('⚠️ Por favor completa al menos el No. Reporte', 'error');
+                return;
+            }
+
+            mostrarEstado('⏳ Generando PDF...', 'info');
+
+            const pdfContent = document.querySelector('.container').cloneNode(true);
+            const opt = {
+                margin: 10,
+                filename: `reporte_${repNo}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+
+            html2pdf().set(opt).from(pdfContent).toPdf().output('dataurlstring').then(pdfDataUrl => {
+                mostrarEstado('📤 Enviando a Drive...', 'info');
+                
+                fetch(`${BACKEND_URL}/api/upload-pdf`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        pdf: pdfDataUrl,
+                        filename: `reporte_${repNo}_${new Date().getTime()}.pdf`
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        mostrarEstado(`✅ ${data.message} - Link: ${data.link}`, 'success');
+                    } else {
+                        mostrarEstado(`❌ Error: ${data.error}`, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    mostrarEstado('❌ Error de conexión con el servidor. Verifica que Render esté disponible.', 'error');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
