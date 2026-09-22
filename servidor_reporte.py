@@ -1,3 +1,91 @@
+#!/usr/bin/env python3
+"""
+Servidor Flask para gestionar reportes de Roca Port MDA47
+Recibe PDFs y los sube a Google Drive automáticamente
+"""
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from google.oauth2.service_account import Credentials
+import os
+import io
+import json
+import base64
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseUpload
+import logging
+
+app = Flask(__name__)
+
+# ⭐ CONFIGURAR CORS CORRECTAMENTE
+CORS(app, 
+     resources={r"/api/*": {"origins": "*"}},
+     allow_headers=["Content-Type"],
+     methods=["GET", "POST", "OPTIONS"])
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    return response
+
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ID de tu carpeta Drive
+DRIVE_FOLDER_ID = "1bu93DnzhCZuVic-kE85xFl4LXeeHXL4P"
+
+# Variables globales para credenciales
+drive_service = None
+credentials = None
+
+def inicializar_drive():
+    """Inicializa conexión a Google Drive"""
+    global drive_service, credentials
+    try:
+        ruta_secreto = '/etc/secrets/google-creds.json'
+        logger.info(f"🔍 Buscando credenciales en: {ruta_secreto}")
+        
+        if not os.path.exists(ruta_secreto):
+            logger.error(f"❌ Archivo no encontrado: {ruta_secreto}")
+            return False
+        
+        with open(ruta_secreto, 'r') as f:
+            creds_json = f.read()
+        
+        if not creds_json:
+            logger.error("❌ Archivo de credenciales vacío")
+            return False
+        
+        creds_dict = json.loads(creds_json)
+        
+        credentials = Credentials.from_service_account_info(
+            creds_dict,
+            scopes=['https://googleapis.com']
+        )
+        
+        drive_service = build('drive', 'v3', credentials=credentials)
+        logger.info("✅ Google Drive conectado correctamente")
+        return True
+        
+    except FileNotFoundError:
+        logger.error(f"❌ Archivo no encontrado: {ruta_secreto}")
+        return False
+    except json.JSONDecodeError as e:
+        logger.error(f"❌ Error al parsear JSON: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ Error al conectar Drive: {e}", exc_info=True)
+        return False
+
+# ⭐ INICIALIZAR DRIVE APENAS SE CARGA LA APP
+logger.info("🚀 Inicializando Drive...")
+if not inicializar_drive():
+    logger.warning("⚠️ Drive no inicializado al inicio")
+
 @app.route('/api/upload-pdf', methods=['POST', 'OPTIONS'])
 def upload_pdf():
     """Recibe PDF en base64 y lo sube a Drive"""
@@ -6,6 +94,9 @@ def upload_pdf():
     
     try:
         data = request.json
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+            
         pdf_base64 = data.get('pdf')
         filename = data.get('filename', 'reporte.pdf')
         
@@ -15,8 +106,10 @@ def upload_pdf():
         if not drive_service:
             return jsonify({'error': 'Drive no inicializado'}), 500
         
-        # Convertir base64 a bytes
-        pdf_bytes = base64.b64decode(pdf_base64.split(',')[1] if ',' in pdf_base64 else pdf_base64)
+        # Convertir base64 a bytes de forma segura
+        if ',' in pdf_base64:
+            pdf_base64 = pdf_base64.split(',')[1]
+        pdf_bytes = base64.b64decode(pdf_base64)
         
         # Crear archivo en Drive
         file_metadata = {
@@ -50,3 +143,49 @@ def upload_pdf():
     except Exception as e:
         logger.error(f"❌ Error al subir PDF: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
+
+@app.route('/api/health', methods=['GET', 'OPTIONS'])
+def health():
+    """Verificar que el servidor está corriendo"""
+    if request.method == 'OPTIONS':
+        return '', 204
+    
+    drive_ok = drive_service is not None
+    return jsonify({
+        'status': 'ok',
+        'drive_connected': drive_ok
+    }), 200
+
+@app.route('/', methods=['GET'])
+def index():
+    """Página de inicio"""
+    return jsonify({
+        'servidor': 'Reporte Roca Port MDA47',
+        'version': '1.0',
+        'endpoints': {
+            '/api/upload-pdf': 'POST - Subir PDF a Drive',
+            '/api/health': 'GET - Verificar estado',
+            '/reporte': 'GET - Abrir formulario de reporte'
+        }
+    }), 200
+
+# ⭐ RUTA PARA SERVIR EL FORMULARIO
+@app.route('/reporte')
+def servir_reporte():
+    """Sirve el formulario HTML del reporte"""
+    try:
+        with open('index.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return jsonify({'error': 'Archivo index.html no encontrado'}), 404
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.environ.get('FLASK_ENV', 'production') == 'development'
+    logger.info(f"🚀 Servidor iniciado en puerto {port}")
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=debug_mode,
+        use_reloader=False
+    )
