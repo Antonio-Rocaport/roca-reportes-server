@@ -43,7 +43,7 @@ drive_service = None
 credentials = None
 
 def inicializar_drive():
-    """Inicializa conexión a Google Drive"""
+    """Inicializa conexión a Google Drive usando el scope completo"""
     global drive_service, credentials
     try:
         ruta_secreto = '/etc/secrets/google-creds.json'
@@ -53,30 +53,16 @@ def inicializar_drive():
             logger.error(f"❌ Archivo no encontrado: {ruta_secreto}")
             return False
         
-        with open(ruta_secreto, 'r') as f:
-            creds_json = f.read()
-        
-        if not creds_json:
-            logger.error("❌ Archivo de credenciales vacío")
-            return False
-        
-        creds_dict = json.loads(creds_json)
-        
-        credentials = Credentials.from_service_account_info(
-            creds_dict,
+        # Conexión directa y simplificada para evitar errores de token temporal
+        credentials = Credentials.from_service_account_file(
+            ruta_secreto,
             scopes=['https://googleapis.com']
         )
         
         drive_service = build('drive', 'v3', credentials=credentials)
-        logger.info("✅ Google Drive conectado correctamente")
+        logger.info("✅ Google Drive conectado correctamente con Scope Completo")
         return True
         
-    except FileNotFoundError:
-        logger.error(f"❌ Archivo no encontrado: {ruta_secreto}")
-        return False
-    except json.JSONDecodeError as e:
-        logger.error(f"❌ Error al parsear JSON: {e}")
-        return False
     except Exception as e:
         logger.error(f"❌ Error al conectar Drive: {e}", exc_info=True)
         return False
@@ -103,6 +89,10 @@ def upload_pdf():
         if not pdf_base64:
             return jsonify({'error': 'No PDF data provided'}), 400
         
+        # Re-verificar servicio por seguridad antes de subir
+        global drive_service
+        if not drive_service:
+            inicializar_drive()
         if not drive_service:
             return jsonify({'error': 'Drive no inicializado'}), 500
         
@@ -123,7 +113,7 @@ def upload_pdf():
             resumable=True
         )
         
-        # ⭐ AQUÍ SE APLICÓ EL CAMBIO PARA EVITAR EL ERROR DE CUOTA (storageQuotaExceeded)
+        # Envío forzando compatibilidad de almacenamiento
         file = drive_service.files().create(
             body=file_metadata,
             media_body=media,
@@ -131,7 +121,7 @@ def upload_pdf():
             supportsAllDrives=True
         ).execute()
         
-        logger.info(f"✅ PDF subido: {filename} (ID: {file.get('id')})")
+        logger.info(f"✅ PDF subido exitosamente: {filename} (ID: {file.get('id')})")
         
         return jsonify({
             'success': True,
@@ -161,7 +151,7 @@ def index():
     """Página de inicio"""
     return jsonify({
         'servidor': 'Reporte Roca Port MDA47',
-        'version': '1.0',
+        'version': '1.1',
         'endpoints': {
             '/api/upload-pdf': 'POST - Subir PDF a Drive',
             '/api/health': 'GET - Verificar estado',
@@ -169,7 +159,6 @@ def index():
         }
     }), 200
 
-# ⭐ RUTA PARA SERVIR EL FORMULARIO
 @app.route('/reporte')
 def servir_reporte():
     """Sirve el formulario HTML del reporte"""
@@ -181,11 +170,9 @@ def servir_reporte():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    debug_mode = os.environ.get('FLASK_ENV', 'production') == 'development'
-    logger.info(f"🚀 Servidor iniciado en puerto {port}")
     app.run(
         host='0.0.0.0',
         port=port,
-        debug=debug_mode,
+        debug=False,
         use_reloader=False
     )
