@@ -759,8 +759,10 @@
             setTimeout(() => { el.style.display = 'none'; }, 4000);
         }
 
-        // EXPORTAR PDF
-        function exportarPDF() {
+        // EXPORTAR PDF - MÉTODO ROBUSTO PARA CARTA
+        // Se captura el reporte completo en un solo lienzo y se corta únicamente en vertical.
+        // Así se evita que html2pdf divida/corte columnas horizontalmente.
+        async function exportarPDF() {
             const repNo = document.getElementById('repNo').value.trim();
             if (!repNo) {
                 mostrarEstado('⚠️ Completa al menos: No. Reporte, Fecha, Responsable, Supervisor, Tag Equipo', 'error');
@@ -770,82 +772,111 @@
             mostrarEstado('⏳ Generando PDF en tamaño Carta...', 'info');
 
             const container = document.querySelector('.container');
-
-            // Ocultar controles que solo sirven para capturar/editar el reporte.
             const elementosOcultar = container.querySelectorAll(
                 '.button-group, .btn-pdf, .btn-clear, .btn-clear-sig, .status-msg, input[type="file"]'
             );
             elementosOcultar.forEach(el => el.classList.add('pdf-hide'));
-
-            // Exportamos el CONTENEDOR completo (incluye encabezado y logos),
-            // no solamente el formulario. Esto evita que el PDF quede recortado.
             container.classList.add('pdf-export-mode');
 
-            const opt = {
-                margin: [10, 10, 10, 10],
-                filename: `reporte_${repNo}.pdf`,
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: {
+            // Fijamos el ancho de captura para que TODO el contenido entre en una sola página de ancho.
+            const anchoCaptura = 816; // ancho equivalente aproximado a Carta a 96 dpi
+            const altoAnterior = container.style.width;
+            const maxAnterior = container.style.maxWidth;
+            container.style.width = `${anchoCaptura}px`;
+            container.style.maxWidth = `${anchoCaptura}px`;
+
+            // Esperar a que el navegador recalcule layout e imágenes.
+            await new Promise(resolve => setTimeout(resolve, 250));
+
+            try {
+                const canvas = await html2canvas(container, {
                     scale: 2,
                     useCORS: true,
                     allowTaint: true,
                     logging: false,
                     backgroundColor: '#ffffff',
+                    width: anchoCaptura,
+                    windowWidth: anchoCaptura,
                     scrollX: 0,
-                    scrollY: 0,
-                    windowWidth: 800,
-                    windowHeight: container.scrollHeight
-                },
-                jsPDF: {
+                    scrollY: 0
+                });
+
+                // Carta vertical: 216 x 279 mm.
+                const pdf = new jsPDF({
                     orientation: 'portrait',
                     unit: 'mm',
                     format: 'letter',
                     compress: true
-                },
-                pagebreak: {
-                    mode: ['css', 'legacy'],
-                    avoid: ['.form-group', '.form-row', '.table-section', '.photo-section', '.signatures-section']
+                });
+
+                const margen = 8;
+                const anchoPagina = 216;
+                const altoPagina = 279;
+                const anchoUtil = anchoPagina - (margen * 2);
+                const altoUtil = altoPagina - (margen * 2);
+
+                // Escala para que el ancho completo del reporte quepa en Carta.
+                const escala = anchoUtil / canvas.width;
+                const altoTotalMm = canvas.height * escala;
+                const altoTotalPxEquiv = altoUtil / escala;
+
+                // Cortes verticales exactos. No se vuelve a dividir horizontalmente.
+                let offsetPx = 0;
+                let pagina = 0;
+
+                while (offsetPx < canvas.height) {
+                    if (pagina > 0) pdf.addPage();
+
+                    const altoCortePx = Math.min(altoTotalPxEquiv, canvas.height - offsetPx);
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = Math.ceil(altoCortePx);
+                    const ctx = tempCanvas.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                    ctx.drawImage(
+                        canvas,
+                        0, offsetPx, canvas.width, altoCortePx,
+                        0, 0, canvas.width, altoCortePx
+                    );
+
+                    const imgData = tempCanvas.toDataURL('image/jpeg', 0.95);
+                    const altoCorteMm = altoCortePx * escala;
+                    pdf.addImage(imgData, 'JPEG', margen, margen, anchoUtil, altoCorteMm, undefined, 'FAST');
+
+                    offsetPx += altoCortePx;
+                    pagina++;
                 }
-            };
 
-            setTimeout(() => {
-                html2pdf()
-                    .set(opt)
-                    .from(container)
-                    .toPdf()
-                    .get('pdf')
-                    .then((pdfObj) => {
-                        const pdfDataUrl = pdfObj.output('dataurlstring');
-                        mostrarEstado('📤 Enviando a Drive...', 'info');
+                const pdfDataUrl = pdf.output('dataurlstring');
+                mostrarEstado('📤 Enviando a Drive...', 'info');
 
-                        return fetch(`${BACKEND_URL}/api/upload-pdf`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                pdf: pdfDataUrl,
-                                filename: `reporte_${repNo}_${new Date().getTime()}.pdf`
-                            })
-                        });
+                const respuesta = await fetch(`${BACKEND_URL}/api/upload-pdf`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pdf: pdfDataUrl,
+                        filename: `reporte_${repNo}_${new Date().getTime()}.pdf`
                     })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success) {
-                            mostrarEstado(`✅ Reporte subido a Drive: ${data.message}`, 'success');
-                            setTimeout(() => limpiarForm(), 2000);
-                        } else {
-                            mostrarEstado(`❌ Error: ${data.error}`, 'error');
-                        }
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        mostrarEstado('❌ Error generando o enviando el PDF.', 'error');
-                    })
-                    .finally(() => {
-                        // Restaurar la vista normal del formulario.
-                        container.classList.remove('pdf-export-mode');
-                        elementosOcultar.forEach(el => el.classList.remove('pdf-hide'));
-                    });
-            }, 300);
+                });
+
+                const data = await respuesta.json();
+                if (data.success) {
+                    mostrarEstado(`✅ Reporte subido a Drive: ${data.message}`, 'success');
+                    setTimeout(() => limpiarForm(), 2000);
+                } else {
+                    mostrarEstado(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                mostrarEstado('❌ Error generando PDF. Revisa el reporte e inténtalo nuevamente.', 'error');
+            } finally {
+                // Restaurar la pantalla del formulario exactamente como estaba.
+                container.style.width = altoAnterior;
+                container.style.maxWidth = maxAnterior;
+                container.classList.remove('pdf-export-mode');
+                elementosOcultar.forEach(el => el.classList.remove('pdf-hide'));
+            }
         }
 
         // Inicializar firmas
