@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Servidor Flask para gestionar reportes de Roca Port MDA47
-Recibe PDFs y los sube a Google Drive automáticamente
+Recibe PDFs y los sube a Google Drive automáticamente mediante API REST Directa
 """
 
 from flask import Flask, request, jsonify
@@ -36,23 +36,41 @@ logger = logging.getLogger(__name__)
 # ID de tu carpeta Drive
 DRIVE_FOLDER_ID = "1bu93DnzhCZuVic-kE85xFl4LXeeHXL4P"
 
-def obtener_token_acceso():
-    """Extrae el token directamente del archivo de credenciales de forma segura"""
+def obtener_access_token(creds_dict):
+    """Genera un token de acceso manual mediante una petición directa a Google Auth OAuth2"""
     try:
-        ruta_secreto = '/etc/secrets/google-creds.json'
-        if not os.path.exists(ruta_secreto):
-            return None
-        with open(ruta_secreto, 'r') as f:
-            creds = json.load(f)
+        import time
+        import jwt
         
-        # Intentar obtener token directo o clave privada
-        return creds.get('private_key_id') or creds.get('token')
-    except Exception:
+        ahora = int(time.time())
+        payload = {
+            "iss": creds_dict["client_email"],
+            "sub": creds_dict["client_email"],
+            "aud": "https://googleapis.com",
+            "iat": ahora,
+            "exp": ahora + 3600,
+            "scope": "https://googleapis.com"
+        }
+        
+        # Firma el JWT de forma nativa con la llave privada del robot
+        token_firmado = jwt.encode(payload, creds_dict["private_key"], algorithm="RS256")
+        
+        # Solicita el token de acceso real a Google
+        url_token = "https://googleapis.com"
+        data_token = {
+            "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+            "assertion": token_firmado
+        }
+        
+        res = requests.post(url_token, data=data_token, timeout=10)
+        return res.json().get("access_token")
+    except Exception as e:
+        logger.error(f"❌ Error al generar token OAuth2: {e}")
         return None
 
 @app.route('/api/upload-pdf', methods=['POST', 'OPTIONS'])
 def upload_pdf():
-    """Recibe PDF en base64 y lo sube directamente por HTTP Post para evitar bloqueos"""
+    """Recibe el PDF en base64 del nuevo formulario y lo sube de verdad por HTTP REST"""
     if request.method == 'OPTIONS':
         return '', 204
     
@@ -72,33 +90,63 @@ def upload_pdf():
             pdf_base64 = pdf_base64.split(',')[1]
         pdf_bytes = base64.b64decode(pdf_base64)
         
-        # Simular subida directa a la carpeta saltándose la librería rota
-        logger.info(f"📤 Intentando subida directa por API REST para {filename}...")
+        # Cargar credenciales del archivo secreto de Render
+        ruta_secreto = '/etc/secrets/google-creds.json'
+        with open(ruta_secreto, 'r') as f:
+            creds_dict = json.load(f)
+            
+        # Obtener token de acceso fresco y válido
+        access_token = obtener_access_token(creds_dict)
+        if not access_token:
+            return jsonify({'error': 'No se pudo autenticar con Google'}), 500
+            
+        # 📤 SUBIDA MULTIPART REAL A GOOGLE DRIVE API V3
+        url = "https://googleapis.com"
+        headers = {"Authorization": f"Bearer {access_token}"}
         
-        # Creamos una respuesta simulada exitosa para desbloquear tu pantalla
-        # mientras Google Cloud propaga los cambios de tu cuenta de desarrollo
+        metadata = {
+            'name': filename,
+            'parents': [DRIVE_FOLDER_ID]
+        }
+        
+        files = {
+            'data': ('metadata', json.dumps(metadata), 'application/json'),
+            'file': (filename, io.BytesIO(pdf_bytes), 'application/pdf')
+        }
+        
+        logger.info(f"📤 Transmitiendo PDF real a la carpeta de Drive: {filename}...")
+        respuesta_drive = requests.post(url, headers=headers, files=files, timeout=30)
+        
+        if respuesta_drive.status_code != 200:
+            logger.error(f"❌ Fallo de Drive API: {respuesta_drive.text}")
+            return jsonify({'error': f'Google Drive rechazó el archivo: {respuesta_drive.text}'}), respuesta_drive.status_code
+            
+        resultado_json = respuesta_drive.json()
+        file_id = resultado_json.get('id')
+        logger.info(f"✅ Archivo guardado físicamente en Drive con ID: {file_id}")
+        
         return jsonify({
             'success': True,
-            'message': f'Reporte enviado a procesamiento en Drive: {filename}',
-            'fileId': 'Simulated_ID_Success',
+            'message': f'Reporte guardado exitosamente en Drive: {filename}',
+            'fileId': file_id,
             'link': f'https://google.com{DRIVE_FOLDER_ID}'
         }), 200
         
     except Exception as e:
-        logger.error(f"❌ Error al procesar PDF: {e}", exc_info=True)
+        logger.error(f"❌ Error crítico al procesar subida: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/health', methods=['GET', 'OPTIONS'])
 def health():
     if request.method == 'OPTIONS':
         return '', 204
-    return jsonify({'status': 'ok', 'drive_connected': True}), 200
+    return jsonify({'status': 'ok'}), 200
 
 @app.route('/', methods=['GET'])
 def index():
     return jsonify({
         'servidor': 'Reporte Roca Port MDA47',
-        'version': '1.2',
+        'version': '1.4',
         'endpoints': {'/api/upload-pdf': 'POST', '/api/health': 'GET', '/reporte': 'GET'}
     }), 200
 
