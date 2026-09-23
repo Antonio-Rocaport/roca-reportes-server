@@ -3,640 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Mantenimiento Campo - Roca Port MDA47</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Reporte Mantenimiento - Roca Port</title>
+    <!-- Carga de librerías oficiales para PDF y Firmas -->
+    <script src="https://cloudflare.com"></script>
+    <script src="https://jsdelivr.net"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 10px; }
-        .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-        
-        /* HEADER CON LOGOS */
-        .header { background: white; padding: 15px; border-bottom: 3px solid #003d82; text-align: center; }
-        .logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
-        .logo-roca { 
-            font-weight: bold; 
-            color: #003d82; 
-            font-size: 14px; 
-            display: flex; 
-            align-items: center; 
-            gap: 5px;
-        }
-        .dot-logo { width: 16px; height: 16px; background: #003d82; border-radius: 0 0 16px 0; }
-        .logo-mda { 
-            font-weight: bold; 
-            color: #0d9488; 
-            font-size: 14px;
-        }
-        .header h1 { color: #003d82; font-size: 18px; margin: 8px 0; }
-        
-        .form-content { padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; font-size: 13px; }
-        input[type="text"], input[type="date"], input[type="number"], textarea, select { 
-            width: 100%; 
-            padding: 8px; 
-            border: 1px solid #ddd; 
-            border-radius: 4px; 
-            font-size: 13px; 
-        }
-        textarea { resize: vertical; min-height: 60px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-        .checkbox-group label { margin: 0; display: flex; align-items: center; font-weight: normal; }
-        input[type="checkbox"] { margin-right: 5px; width: 16px; height: 16px; cursor: pointer; }
-        
-        /* TABLA DE ACTIVIDADES */
-        .table-section { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 4px; border: 1px solid #ddd; }
-        .table-section h3 { color: #003d82; font-size: 14px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { background: #003d82; color: white; padding: 8px; text-align: left; font-weight: bold; }
-        td { padding: 8px; border-bottom: 1px solid #ddd; }
-        tr:nth-child(even) { background: #f0f0f0; }
-        input.table-input { width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 2px; font-size: 11px; }
-        
-        /* FOTOS */
-        .photo-section { margin-top: 20px; }
-        .photo-input { margin-bottom: 15px; }
-        .photo-label { font-weight: bold; margin-bottom: 5px; }
-        .photo-preview { width: 100%; height: 150px; border: 2px solid #ddd; border-radius: 4px; object-fit: cover; margin-bottom: 5px; }
-        
-        /* FIRMAS */
-        .signatures-section { margin-top: 20px; padding-top: 20px; border-top: 2px solid #003d82; }
-        .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .signature-block { }
-        .signature-label { font-weight: bold; color: #003d82; margin-bottom: 8px; font-size: 13px; }
-        canvas { 
-            border: 2px solid #ddd; 
-            border-radius: 4px; 
-            display: block; 
-            width: 100%; 
-            height: 100px; 
-            cursor: crosshair; 
-            background: white; 
-            touch-action: none; 
-        }
-        .btn-clear-sig { 
-            background-color: #6c757d; 
-            color: white; 
-            padding: 6px 10px; 
-            font-size: 11px; 
-            border: none; 
-            border-radius: 3px; 
-            cursor: pointer; 
-            margin-top: 5px; 
-        }
-        .btn-clear-sig:hover { background-color: #545b62; }
-        
-        /* BOTONES PRINCIPALES */
-        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        button { 
-            padding: 10px; 
-            font-size: 13px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: background 0.3s; 
-        }
-        .btn-save { background-color: #28a745; color: white; }
-        .btn-save:hover { background-color: #218838; }
-        .btn-load { background-color: #007bff; color: white; }
-        .btn-load:hover { background-color: #0056b3; }
-        .btn-pdf { background-color: #dc3545; color: white; width: 100%; margin-top: 10px; }
-        .btn-pdf:hover { background-color: #c82333; }
-        
-        .status-msg { 
-            padding: 10px; 
-            margin-top: 10px; 
-            border-radius: 4px; 
-            text-align: center; 
-            font-weight: bold; 
-            display: none; 
-        }
-        .status-msg.success { background-color: #d4edda; color: #155724; }
-        .status-msg.error { background-color: #f8d7da; color: #721c24; }
-        
-        .required-mark { color: #dc3545; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .form-container { background: #ffffff; width: 100%; max-width: 850px; padding: 30px; border-top: 5px solid #0056b3; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eaeaea; padding-bottom: 15px; margin-bottom: 25px; }
+        .logo-area { font-weight: bold; font-size: 24px; color: #0056b3; display: flex; align-items: center; gap: 10px; }
+        .logo-img { height: 45px; object-fit: contain; }
+        .meta-info { font-size: 12px; color: #666; text-align: right; }
+        h2 { color: #333; margin-top: 0; font-size: 22px; }
+        .subtitle { color: #666; font-size: 13px; margin-top: -15px; margin-bottom: 25px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+        label.required::after { content: " *"; color: #dc3545; }
+        input[type="text"], input[type="date"], select, textarea { padding: 8px 12px; border: 1px solid #cccccc; border-radius: 4px; font-size: 14px; background: #fafafa; }
+        input:focus, select:focus, textarea:focus { border-color: #0056b3; outline: none; background: #fff; }
+        .checkbox-group { display: flex; gap: 15px; padding: 5px 0; flex-wrap: wrap; }
+        .checkbox-item { display: flex; align-items: center; gap: 5px; font-size: 14px; color: #333; }
+        .section-title { background: #f8f9fa; padding: 8px 12px; font-size: 16px; font-weight: bold; color: #0056b3; border-left: 4px solid #0056b3; margin: 30px 0 15px 0; display: flex; align-items: center; gap: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+        th { background: #0056b3; color: white; padding: 10px; text-align: left; font-weight: 600; }
+        td { border: 1px solid #eaeaea; padding: 8px; }
+        .col-num { width: 50px; text-align: center; font-weight: bold; color: #666; }
+        .col-act { width: 60%; }
+        .col-est { width: 25%; }
+        .col-hh { width: 15%; }
+        .photo-uploader { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .photo-box { border: 1px dashed #cccccc; padding: 15px; border-radius: 4px; text-align: center; background: #fafafa; }
+        .photo-box input { font-size: 12px; width: 100%; }
+        .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .signature-area { border: 1px solid #cccccc; border-radius: 4px; background: #fff; position: relative; margin-bottom: 5px; }
+        canvas { width: 100%; height: 130px; display: block; background: #ffffff; }
+        .btn-clear { background: #6c757d; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; margin-bottom: 10px; }
+        .btn-clear:hover { background: #5a6268; }
+        .actions-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 40px; border-top: 1px solid #eaeaea; padding-top: 20px; }
+        .btn-main { padding: 12px; border: none; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; transition: background 0.2s; }
+        .btn-save-local { background: #28a745; }
+        .btn-save-local:hover { background: #218838; }
+        .btn-load-local { background: #17a2b8; }
+        .btn-load-local:hover { background: #138496; }
+        .btn-submit { background: #dc3545; grid-column: span 2; padding: 14px; font-size: 16px; }
+        .btn-submit:hover { background: #c82333; }
+        .btn-main:disabled { background: #cccccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- HEADER CON LOGOS -->
-        <div class="header">
-            <div class="logo-row">
-                <div class="logo-roca">
-                    <div class="dot-logo"></div>
-                    roca port
-                </div>
-                <div class="logo-mda">⚙ MDA47</div>
-            </div>
-            <h1>Reporte Mantenimiento</h1>
-            <p style="color: #666; font-size: 12px;">Completar en campo • Técnico</p>
+
+<div class="form-container" id="reporte-formulario">
+    <div class="header">
+        <div class="logo-area">
+            <!-- Token CORS añadido para renderizar imágenes enlazadas externas -->
+            <img src="https://onrender.com" crossorigin="anonymous" class="logo-img" alt="roca port">
+            <span>Roca Port</span>
         </div>
-
-        <div class="form-content">
-            <form id="reporteForm">
-                <!-- DATOS BÁSICOS -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="repNo">No. Reporte <span class="required-mark">*</span></label>
-                        <input type="text" id="repNo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha">Fecha <span class="required-mark">*</span></label>
-                        <input type="date" id="fecha" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="responsable">Responsable (Mecánico) <span class="required-mark">*</span></label>
-                        <input type="text" id="responsable" placeholder="Nombre" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="supervisor">Supervisor <span class="required-mark">*</span></label>
-                        <input type="text" id="supervisor" placeholder="Nombre" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="tag">Tag Equipo <span class="required-mark">*</span></label>
-                        <input type="text" id="tag" placeholder="Ej: G-EQ-01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cliente">Cliente</label>
-                        <input type="text" id="cliente" placeholder="HLB, Interno, etc.">
-                    </div>
-                </div>
-
-                <!-- TIPO Y DISCIPLINA -->
-                <div class="form-group">
-                    <label>Tipo Mantenimiento <span class="required-mark">*</span></label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="tipo" value="Preventivo"> Preventivo</label>
-                        <label><input type="checkbox" name="tipo" value="Correctivo"> Correctivo</label>
-                        <label><input type="checkbox" name="tipo" value="Requerido"> Requerido</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Disciplina <span class="required-mark">*</span></label>
-                    <div class="checkbox-group">
-                        <label><input type="checkbox" name="disciplina" value="Mecánico"> Mecánico</label>
-                        <label><input type="checkbox" name="disciplina" value="Eléctrico"> Eléctrico</label>
-                        <label><input type="checkbox" name="disciplina" value="A/C"> A/C</label>
-                        <label><input type="checkbox" name="disciplina" value="Hidráulico"> Hidráulico</label>
-                        <label><input type="checkbox" name="disciplina" value="Neumático"> Neumático</label>
-                    </div>
-                </div>
-
-                <!-- HORAS Y DESCRIPCIÓN -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="hhAsig">HH Asignadas</label>
-                        <input type="number" id="hhAsig" placeholder="0" step="0.5">
-                    </div>
-                    <div class="form-group">
-                        <label for="hhEjec">HH Ejecutadas</label>
-                        <input type="number" id="hhEjec" placeholder="0" step="0.5">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="descripcion">Descripción del Trabajo <span class="required-mark">*</span></label>
-                    <textarea id="descripcion" placeholder="¿Qué se hizo?" required></textarea>
-                </div>
-
-                <!-- TABLA DE ACTIVIDADES -->
-                <div class="table-section">
-                    <h3>📋 Actividades Realizadas</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 5%;">#</th>
-                                <th style="width: 60%;">Actividad</th>
-                                <th style="width: 20%;">Estado</th>
-                                <th style="width: 15%;">HH</th>
-                            </tr>
-                        </thead>
-                        <tbody id="activitiesTable">
-                            <tr>
-                                <td>1</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Cambio aceite"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Revisión filtros"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Calibración"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Prueba funcional"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Limpieza y orden"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>6</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Documentación"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- FOTOS -->
-                <div class="photo-section">
-                    <h3 style="color: #003d82; margin-bottom: 10px; font-size: 14px;">📷 Fotos del Mantenimiento (máx 4)</h3>
-                    <div class="photo-input">
-                        <div class="photo-label">Foto 1:</div>
-                        <input type="file" id="foto1" accept="image/*" capture="environment">
-                        <img id="preview1" class="photo-preview" style="display:none;">
-                    </div>
-                    <div class="photo-input">
-                        <div class="photo-label">Foto 2:</div>
-                        <input type="file" id="foto2" accept="image/*" capture="environment">
-                        <img id="preview2" class="photo-preview" style="display:none;">
-                    </div>
-                    <div class="photo-input">
-                        <div class="photo-label">Foto 3:</div>
-                        <input type="file" id="foto3" accept="image/*" capture="environment">
-                        <img id="preview3" class="photo-preview" style="display:none;">
-                    </div>
-                    <div class="photo-input">
-                        <div class="photo-label">Foto 4:</div>
-                        <input type="file" id="foto4" accept="image/*" capture="environment">
-                        <img id="preview4" class="photo-preview" style="display:none;">
-                    </div>
-                </div>
-
-                <!-- FIRMAS: MECÁNICO, SUPERVISOR, ACEPTACIÓN -->
-                <div class="signatures-section">
-                    <h2 style="color: #003d82; font-size: 15px; margin-bottom: 15px;">✍️ Firmas Requeridas</h2>
-                    
-                    <div class="signatures-grid">
-                        <!-- Firma Mecánico -->
-                        <div class="signature-block">
-                            <div class="signature-label">Firma Mecánico <span class="required-mark">*</span></div>
-                            <canvas id="firmaMecanico"></canvas>
-                            <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaMecanico')">Limpiar</button>
-                        </div>
-
-                        <!-- Firma Supervisor -->
-                        <div class="signature-block">
-                            <div class="signature-label">Firma Supervisor <span class="required-mark">*</span></div>
-                            <canvas id="firmaSupervisor"></canvas>
-                            <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaSupervisor')">Limpiar</button>
-                        </div>
-                    </div>
-
-                    <!-- Firma de Aceptación (ancho completo) -->
-                    <div class="signature-block" style="margin-top: 15px;">
-                        <div class="signature-label">Firma: Aceptó Mantenimiento <span class="required-mark">*</span></div>
-                        <input type="text" id="aceptaQuien" placeholder="Nombre de quien acepta" style="margin-bottom: 8px;">
-                        <canvas id="firmaAceptacion"></canvas>
-                        <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaAceptacion')">Limpiar</button>
-                    </div>
-                </div>
-
-                <!-- BOTONES -->
-                <div class="button-group">
-                    <button type="button" class="btn-save" onclick="guardarLocal()">💾 Guardar Local</button>
-                    <button type="button" class="btn-load" onclick="cargarLocal()">📂 Cargar</button>
-                </div>
-                <button type="button" class="btn-pdf" onclick="exportarPDF()">📄 Exportar a PDF</button>
-            </form>
-
-            <div class="status-msg" id="statusMsg"></div>
+        <div class="meta-info">
+            <strong>⚙ MDA47</strong><br>
+            Completo en campo • Técnico
         </div>
     </div>
 
-    <script>
-        // ⚙️ CONFIGURACIÓN DEL SERVIDOR
-        // Cambiar esta URL cuando esté en Render
-        const SERVER_URL = 'https://roca-reportes-server.onrender.com'; // Render producción
-        // const SERVER_URL = 'http://localhost:5000'; // Local desarrollo
-        
-        // Inicializar canvas de firmas
-        const canvases = ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'];
-        const ctxs = {};
-        const isDrawingStates = {};
+    <h2># Reporte Mantenimiento</h2>
+    <div class="subtitle">Complete cuidadosamente todos los campos requeridos.</div>
 
-        canvases.forEach(canvasId => {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            ctxs[canvasId] = ctx;
-            isDrawingStates[canvasId] = false;
+    <div class="grid-2">
+        <div class="form-group">
+            <label class="required">No. Reporte</label>
+            <input type="text" id="no_reporte" required placeholder="Ej: ms-e-a-01">
+        </div>
+        <div class="form-group">
+            <label class="required">Fecha</label>
+            <input type="date" id="fecha" required>
+        </div>
+    </div>
 
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+    <div class="grid-2">
+        <div class="form-group">
+            <label class="required">Responsable (Mecánico)</label>
+            <input type="text" id="responsable" required placeholder="Nombre completo">
+        </div>
+        <div class="form-group">
+            <label class="required">Supervisor</label>
+            <input type="text" id="supervisor" required placeholder="Nombre completo">
+        </div>
+    </div>
 
-            canvas.addEventListener('mousedown', () => { isDrawingStates[canvasId] = true; });
-            canvas.addEventListener('mouseup', () => { isDrawingStates[canvasId] = false; });
-            canvas.addEventListener('mousemove', (e) => { if(isDrawingStates[canvasId]) dibujarEnCanvas(e, canvas, ctx); });
+    <div class="grid-2">
+        <div class="form-group">
+            <label class="required">Tag Equipo</label>
+            <input type="text" id="tag_equipo" required placeholder="Ej: GAEG-01">
+        </div>
+        <div class="form-group">
+            <label>Cliente</label>
+            <input type="text" id="cliente" placeholder="HLB, Interno, etc.">
+        </div>
+    </div>
 
-            canvas.addEventListener('touchstart', (e) => { isDrawingStates[canvasId] = true; e.preventDefault(); });
-            canvas.addEventListener('touchend', () => { isDrawingStates[canvasId] = false; });
-            canvas.addEventListener('touchmove', (e) => { if(isDrawingStates[canvasId]) dibujarEnCanvas(e, canvas, ctx); e.preventDefault(); });
-        });
+    <div class="grid-2">
+        <div class="form-group">
+            <label class="required">Tipo Mantenimiento</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="tipo_mant" value="Preventivo"> Preventivo</label>
+                <label class="checkbox-item"><input type="checkbox" name="tipo_mant" value="Correctivo"> Correctivo</label>
+                <label class="checkbox-item"><input type="checkbox" name="tipo_mant" value="Requerido"> Requerido</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="required">Disciplina</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="Mecánico"> Mecánico</label>
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="Eléctrico"> Eléctrico</label>
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="A/C"> A/C</label>
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="Hidráulico"> Hidráulico</label>
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="Neumático"> Neumático</label>
+            </div>
+        </div>
+    </div>
 
-        function dibujarEnCanvas(e, canvas, ctx) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX ? e.clientX - rect.left : e.touches[0].clientX - rect.left;
-            const y = e.clientY ? e.clientY - rect.top : e.touches[0].clientY - rect.top;
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2);
-            ctx.fill();
-        }
+    <div class="grid-2">
+        <div class="form-group">
+            <label>HH Asignadas</label>
+            <input type="text" id="hh_asignadas" placeholder="0">
+        </div>
+        <div class="form-group">
+            <label>HH Ejecutadas</label>
+            <input type="text" id="hh_ejecutadas" placeholder="0">
+        </div>
+    </div>
 
-        function limpiarFirma(canvasId) {
-            const ctx = ctxs[canvasId];
-            const canvas = document.getElementById(canvasId);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
+    <div class="form-group" style="margin-bottom: 20px;">
+        <label class="required">Descripción del Trabajo</label>
+        <textarea id="descripcion_trabajo" rows="4" required placeholder="Detalle las tareas realizadas..."></textarea>
+    </div>
 
-        // Fotos
-        ['foto1', 'foto2', 'foto3', 'foto4'].forEach((id, idx) => {
-            document.getElementById(id).addEventListener('change', (e) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    document.getElementById(`preview${idx+1}`).src = reader.result;
-                    document.getElementById(`preview${idx+1}`).style.display = 'block';
-                };
-                if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
-            });
-        });
-
-        // Guardar
-        function guardarLocal() {
-            const activities = [];
-            document.querySelectorAll('#activitiesTable tr').forEach((row, idx) => {
-                const name = row.querySelector('.activity-name').value;
-                const status = row.querySelector('.activity-status').value;
-                const hh = row.querySelector('.activity-hh').value;
-                if(name || status || hh) {
-                    activities.push({ num: idx+1, name, status, hh });
+    <div class="section-title">📋 Actividades Realizadas</div>
+    <table>
+        <thead>
+            <tr>
+                <th class="col-num">#</th>
+                <th class="col-act">Actividad</th>
+                <th class="col-est">Estado</th>
+                <th class="col-hh">HH</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-actividades">
+            <!-- Se generan las 6 filas del reporte original -->
+            <script>
+                for(let i=1; i<=6; i++) {
+                    document.write(`
+                        <tr>
+                            <td class="col-num">${i}</td>
+                            <td><input type="text" id="act_desc_${i}" style="width:100%; border:none; background:transparent;" placeholder="Descripción de actividad..."></td>
+                            <td>
+                                <select id="act_est_${i}" style="width:100%;">
+                                    <option value="">-- Seleccionar --</option>
+                                    <option value="Completada">✓ Completada</option>
+                                    <option value="Parcial">◐ Parcial</option>
+                                    <option value="Pendiente">✗ Pendiente</option>
+                                </select>
+                            </td>
+                            <td><input type="text" id="act_hh_${i}" style="width:100%; border:none; background:transparent; text-align:center;" placeholder="0"></td>
+                        </tr>
+                    `);
                 }
-            });
+            </script>
+        </tbody>
+    </table>
 
-            const datos = {
-                repNo: document.getElementById('repNo').value,
-                fecha: document.getElementById('fecha').value,
-                responsable: document.getElementById('responsable').value,
-                supervisor: document.getElementById('supervisor').value,
-                tag: document.getElementById('tag').value,
-                cliente: document.getElementById('cliente').value,
-                tipo: Array.from(document.querySelectorAll('input[name="tipo"]:checked')).map(x => x.value),
-                disciplina: Array.from(document.querySelectorAll('input[name="disciplina"]:checked')).map(x => x.value),
-                hhAsig: document.getElementById('hhAsig').value,
-                hhEjec: document.getElementById('hhEjec').value,
-                descripcion: document.getElementById('descripcion').value,
-                activities: activities,
-                firmaMecanico: document.getElementById('firmaMecanico').toDataURL(),
-                firmaSupervisor: document.getElementById('firmaSupervisor').toDataURL(),
-                aceptaQuien: document.getElementById('aceptaQuien').value,
-                firmaAceptacion: document.getElementById('firmaAceptacion').toDataURL(),
-                fotos: []
-            };
-            ['foto1', 'foto2', 'foto3', 'foto4'].forEach((id, idx) => {
-                const preview = document.getElementById(`preview${idx+1}`);
-                if (preview.style.display !== 'none') datos.fotos.push(preview.src);
-            });
-            localStorage.setItem('reporte_' + Date.now(), JSON.stringify(datos));
-            mostrarEstado('✅ Guardado localmente', 'success');
-        }
-
-        // Cargar
-        function cargarLocal() {
-            const keys = Object.keys(localStorage);
-            if (keys.length === 0) { 
-                mostrarEstado('❌ No hay reportes guardados', 'error');
-                return;
-            }
-            const ultimo = keys[keys.length - 1];
-            const datos = JSON.parse(localStorage.getItem(ultimo));
-            
-            document.getElementById('repNo').value = datos.repNo || '';
-            document.getElementById('fecha').value = datos.fecha || '';
-            document.getElementById('responsable').value = datos.responsable || '';
-            document.getElementById('supervisor').value = datos.supervisor || '';
-            document.getElementById('tag').value = datos.tag || '';
-            document.getElementById('cliente').value = datos.cliente || '';
-            document.getElementById('hhAsig').value = datos.hhAsig || '';
-            document.getElementById('hhEjec').value = datos.hhEjec || '';
-            document.getElementById('descripcion').value = datos.descripcion || '';
-            document.getElementById('aceptaQuien').value = datos.aceptaQuien || '';
-            
-            datos.tipo.forEach(t => { document.querySelector(`input[name="tipo"][value="${t}"]`).checked = true; });
-            datos.disciplina.forEach(d => { document.querySelector(`input[name="disciplina"][value="${d}"]`).checked = true; });
-            
-            // Cargar actividades
-            if(datos.activities && datos.activities.length > 0) {
-                const rows = document.querySelectorAll('#activitiesTable tr');
-                datos.activities.forEach((act, idx) => {
-                    if(rows[idx]) {
-                        rows[idx].querySelector('.activity-name').value = act.name || '';
-                        rows[idx].querySelector('.activity-status').value = act.status || '';
-                        rows[idx].querySelector('.activity-hh').value = act.hh || '';
-                    }
-                });
-            }
-            
-            // Cargar firmas
-            ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(sigId => {
-                const img = new Image();
-                img.onload = () => {
-                    const ctx = ctxs[sigId];
-                    ctx.drawImage(img, 0, 0);
-                };
-                img.src = datos[sigId] || '';
-            });
-            
-            // Cargar fotos
-            datos.fotos.forEach((foto, idx) => {
-                document.getElementById(`preview${idx+1}`).src = foto;
-                document.getElementById(`preview${idx+1}`).style.display = 'block';
-            });
-            mostrarEstado('✅ Reporte cargado', 'success');
-        }
-
-        // Exportar a PDF y subir a Drive
-        function exportarPDF() {
-            try {
-                // Validar campos requeridos
-                const repNo = document.getElementById('repNo').value;
-                const fecha = document.getElementById('fecha').value;
-                const responsable = document.getElementById('responsable').value;
-                const supervisor = document.getElementById('supervisor').value;
-                const tag = document.getElementById('tag').value;
-                
-                if (!repNo || !fecha || !responsable || !supervisor || !tag) {
-                    mostrarEstado('❌ Completa: No. Reporte, Fecha, Responsable, Supervisor y Tag Equipo', 'error');
-                    return;
-                }
-                
-                mostrarEstado('⏳ Generando y subiendo a Drive...', 'success');
-                
-                const element = document.getElementById('reporteForm');
-                const opt = {
-                    margin: [8, 8, 8, 8],
-                    filename: `reporte_${repNo}.pdf`,
-                    image: { type: 'jpeg', quality: 0.95 },
-                    html2canvas: { 
-                        scale: 2,
-                        useCORS: true,
-                        logging: false,
-                        backgroundColor: '#ffffff'
-                    },
-                    jsPDF: { 
-                        orientation: 'portrait', 
-                        unit: 'mm', 
-                        format: 'letter'
-                    }
-                };
-                
-                setTimeout(() => {
-                    html2pdf()
-                        .set(opt)
-                        .from(element)
-                        .toPdf()
-                        .get('pdf')
-                        .then((pdfObj) => {
-                            // Obtener PDF como data URL
-                            const pdfDataUrl = pdfObj.output('dataurlstring');
-                            
-                            // Enviar al servidor Render
-                            fetch('https://roca-reportes-server.onrender.com/api/upload-pdf', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    pdf: pdfDataUrl,
-                                    filename: `reporte_${repNo}.pdf`
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    mostrarEstado(`✅ ${data.message}`, 'success');
-                                    // Limpiar formulario después de 2 segundos
-                                    setTimeout(() => {
-                                        document.getElementById('reporteForm').reset();
-                                        ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(id => {
-                                            limpiarFirma(id);
-                                        });
-                                    }, 2000);
-                                } else {
-                                    mostrarEstado(`❌ ${data.error}`, 'error');
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Error al conectar servidor:', err);
-                                mostrarEstado('⚠️ Servidor no disponible. ¿Está corriendo python en tu máquina?', 'error');
-                            });
-                        })
-                        .catch((err) => {
-                            console.error('Error al generar PDF:', err);
-                            mostrarEstado('❌ Error al generar PDF. Revisa la consola.', 'error');
-                        });
-                }, 300);
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarEstado('❌ Error inesperado. Contacta con soporte.', 'error');
-            }
-        }
-
-        // Estado
-        function mostrarEstado(msg, tipo) {
-            const el = document.getElementById('statusMsg');
-            el.textContent = msg;
-            el.className = `status-msg ${tipo}`;
-            el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, 3000);
-        }
-
-        // Establecer fecha actual por defecto
-        document.getElementById('fecha').valueAsDate = new Date();
-        
-        // Llenar datos de ejemplo para prueba rápida
-        function llenarEjemplo() {
-            document.getElementById('repNo').value = 'MDA47-' + Date.now();
-            document.getElementById('fecha').valueAsDate = new Date();
-            document.getElementById('responsable').value = 'Juan Daniel Salvador';
-            document.getElementById('supervisor').value = 'Antonio E. Hernández';
-            document.getElementById('tag').value = 'G-BOMBA-01';
-            document.getElementById('cliente').value = 'HLB (Halliburton)';
-            document.getElementById('hhAsig').value = '8';
-            document.getElementById('hhEjec').value = '7.5';
-            document.getElementById('descripcion').value = 'Mantenimiento preventivo de bomba centrífuga. Inspección de sellos, lubricación, alineación y pruebas de rendimiento.';
-            document.getElementById('aceptaQuien').value = 'Jocelyn (HLB)';
-            
-            document.querySelector('input[name="tipo"][value="Preventivo"]').checked = true;
-            document.querySelector('input[name="disciplina"][value="Mecánica"]').checked = true;
-            
-            mostrarEstado('✅ Datos de ejemplo cargados', 'success');
-        }
-    </script>
-</body>
-</html>
+    <div class="section-title">📷 Fotos del Mantenimiento (máx 4)</div>
+    <div class="photo-uploader">
