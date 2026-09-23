@@ -3,93 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Mantenimiento Campo - Roca Port MDA47</title>
+    <title>Reporte Mantenimiento - Roca Port MDA47</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 10px; }
-        .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #f5f5f5; 
+            padding: 10px;
+            line-height: 1.4;
+        }
         
-        /* HEADER CON LOGOS */
-        .header { background: white; padding: 15px; border-bottom: 3px solid #003d82; text-align: center; }
-        .logo-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
-        .logo-roca { 
-            font-weight: bold; 
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
+            overflow: hidden;
+        }
+        
+        .header { 
+            background: white; 
+            padding: 20px; 
+            border-bottom: 3px solid #003d82; 
+            text-align: center;
+        }
+        
+        .header h1 { 
             color: #003d82; 
-            font-size: 14px; 
-            display: flex; 
-            align-items: center; 
-            gap: 5px;
+            font-size: 20px; 
+            margin: 10px 0;
         }
-        .dot-logo { width: 16px; height: 16px; background: #003d82; border-radius: 0 0 16px 0; }
-        .logo-mda { 
-            font-weight: bold; 
-            color: #0d9488; 
-            font-size: 14px;
-        }
-        .header h1 { color: #003d82; font-size: 18px; margin: 8px 0; }
         
-        .form-content { padding: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; color: #333; margin-bottom: 5px; font-size: 13px; }
-        input[type="text"], input[type="date"], input[type="number"], textarea, select { 
+        .header p { 
+            color: #666; 
+            font-size: 12px; 
+            margin: 5px 0;
+        }
+        
+        .form-content { 
+            padding: 25px; 
+        }
+        
+        .form-group { 
+            margin-bottom: 15px; 
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        label { 
+            display: block; 
+            font-weight: bold; 
+            color: #333; 
+            margin-bottom: 5px; 
+            font-size: 13px;
+        }
+        
+        input[type="text"], 
+        input[type="date"], 
+        input[type="number"], 
+        textarea, 
+        select { 
             width: 100%; 
             padding: 8px; 
-            border: 1px solid #ddd; 
+            border: 1px solid #ccc; 
             border-radius: 4px; 
-            font-size: 13px; 
+            font-size: 13px;
+            font-family: Arial, sans-serif;
         }
-        textarea { resize: vertical; min-height: 60px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
-        .checkbox-group { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
-        .checkbox-group label { margin: 0; display: flex; align-items: center; font-weight: normal; }
-        input[type="checkbox"] { margin-right: 5px; width: 16px; height: 16px; cursor: pointer; }
+        textarea { 
+            resize: vertical; 
+            min-height: 80px;
+            line-height: 1.4;
+        }
         
-        /* TABLA DE ACTIVIDADES */
-        .table-section { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 4px; border: 1px solid #ddd; }
-        .table-section h3 { color: #003d82; font-size: 14px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { background: #003d82; color: white; padding: 8px; text-align: left; font-weight: bold; }
-        td { padding: 8px; border-bottom: 1px solid #ddd; }
-        tr:nth-child(even) { background: #f0f0f0; }
-        input.table-input { width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 2px; font-size: 11px; }
+        .form-row { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
         
-        /* FOTOS */
-        .photo-section { margin-top: 20px; }
-        .photo-input { margin-bottom: 15px; }
-        .photo-label { font-weight: bold; margin-bottom: 5px; }
-        .photo-preview { width: 100%; height: 150px; border: 2px solid #ddd; border-radius: 4px; object-fit: cover; margin-bottom: 5px; }
+        .checkbox-group { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 15px; 
+            margin-top: 8px;
+        }
         
-        /* FIRMAS */
-        .signatures-section { margin-top: 20px; padding-top: 20px; border-top: 2px solid #003d82; }
-        .signatures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .signature-block { }
-        .signature-label { font-weight: bold; color: #003d82; margin-bottom: 8px; font-size: 13px; }
+        .checkbox-group label { 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            font-weight: normal;
+        }
+        
+        input[type="checkbox"], 
+        input[type="radio"] { 
+            margin-right: 5px; 
+            width: 16px; 
+            height: 16px; 
+            cursor: pointer;
+        }
+        
+        .section-title { 
+            background: #003d82; 
+            color: white; 
+            padding: 12px 15px; 
+            margin: 20px 0 15px 0; 
+            font-weight: bold; 
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        
+        .table-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            background: #f9f9f9; 
+            border: 1px solid #ddd; 
+            border-radius: 4px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 12px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        th { 
+            background: #003d82; 
+            color: white; 
+            padding: 10px; 
+            text-align: left; 
+            font-weight: bold;
+        }
+        
+        td { 
+            padding: 8px; 
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:nth-child(even) { 
+            background: #f0f0f0; 
+        }
+        
+        input.table-input { 
+            width: 100%; 
+            padding: 4px; 
+            border: 1px solid #ccc; 
+            border-radius: 2px; 
+            font-size: 11px;
+        }
+        
+        .photo-section { 
+            margin: 20px 0; 
+            padding: 15px; 
+            background: #f9f9f9; 
+            border: 1px solid #ddd; 
+            border-radius: 4px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .photo-input { 
+            margin-bottom: 15px;
+        }
+        
+        .photo-label { 
+            font-weight: bold; 
+            margin-bottom: 5px; 
+            display: block;
+        }
+        
+        .photo-preview { 
+            width: 100%; 
+            height: 150px; 
+            border: 2px solid #ddd; 
+            border-radius: 4px; 
+            object-fit: cover; 
+            margin-bottom: 5px;
+            page-break-inside: avoid;
+        }
+        
+        .signatures-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border-top: 2px solid #003d82;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .signatures-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 15px; 
+            margin-top: 15px;
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .signature-block { 
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+        
+        .signature-label { 
+            font-weight: bold; 
+            color: #003d82; 
+            margin-bottom: 8px; 
+            font-size: 12px;
+        }
+        
         canvas { 
             border: 2px solid #ddd; 
             border-radius: 4px; 
             display: block; 
             width: 100%; 
-            height: 100px; 
+            height: 80px; 
             cursor: crosshair; 
-            background: white; 
-            touch-action: none; 
+            background: white;
+            touch-action: none;
         }
+        
         .btn-clear-sig { 
             background-color: #6c757d; 
             color: white; 
-            padding: 6px 10px; 
+            padding: 5px 10px; 
             font-size: 11px; 
             border: none; 
             border-radius: 3px; 
             cursor: pointer; 
-            margin-top: 5px; 
+            margin-top: 5px;
         }
-        .btn-clear-sig:hover { background-color: #545b62; }
         
-        /* BOTONES PRINCIPALES */
-        .button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .btn-clear-sig:hover { 
+            background-color: #545b62; 
+        }
+        
+        .button-group { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin-top: 20px;
+        }
+        
         button { 
             padding: 10px; 
             font-size: 13px; 
@@ -97,399 +261,369 @@
             border-radius: 4px; 
             cursor: pointer; 
             font-weight: bold; 
-            transition: background 0.3s; 
+            transition: background 0.3s;
         }
-        .btn-save { background-color: #28a745; color: white; }
-        .btn-save:hover { background-color: #218838; }
-        .btn-load { background-color: #007bff; color: white; }
-        .btn-load:hover { background-color: #0056b3; }
-        .btn-pdf { background-color: #dc3545; color: white; width: 100%; margin-top: 10px; }
-        .btn-pdf:hover { background-color: #c82333; }
+        
+        .btn-save { 
+            background-color: #28a745; 
+            color: white;
+        }
+        
+        .btn-save:hover { 
+            background-color: #218838; 
+        }
+        
+        .btn-load { 
+            background-color: #007bff; 
+            color: white;
+        }
+        
+        .btn-load:hover { 
+            background-color: #0056b3; 
+        }
+        
+        .btn-pdf { 
+            background-color: #dc3545; 
+            color: white; 
+            width: 100%;
+            grid-column: 1 / -1;
+        }
+        
+        .btn-pdf:hover { 
+            background-color: #c82333; 
+        }
+        
+        .btn-clear { 
+            background-color: #6c757d; 
+            color: white;
+        }
+        
+        .btn-clear:hover { 
+            background-color: #5a6268; 
+        }
         
         .status-msg { 
-            padding: 10px; 
-            margin-top: 10px; 
+            margin-top: 15px; 
+            padding: 12px; 
             border-radius: 4px; 
             text-align: center; 
             font-weight: bold; 
-            display: none; 
-        }
-        .status-msg.success { background-color: #d4edda; color: #155724; }
-        .status-msg.error { background-color: #f8d7da; color: #721c24; }
-        
-        .required-mark { color: #dc3545; }
-
-        /* ⭐ ESTILOS PARA PDF: Evitar saltos de página feos */
-        table { 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            font-size: 13px; 
+            display: none;
         }
         
-        .table-section { 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+        .status-msg.success { 
+            background-color: #d4edda; 
+            color: #155724; 
+            border: 1px solid #c3e6cb;
         }
         
-        .signatures-grid { 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+        .status-msg.error { 
+            background-color: #f8d7da; 
+            color: #721c24; 
+            border: 1px solid #f5c6cb;
         }
         
-        .photo-section { 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+        .status-msg.info { 
+            background-color: #d1ecf1; 
+            color: #0c5460; 
+            border: 1px solid #bee5eb;
         }
         
-        .form-group { 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+        /* ESTILOS PARA PDF */
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .form-group { page-break-inside: avoid; }
+            .form-row { page-break-inside: avoid; }
+            table { page-break-inside: avoid; }
+            .table-section { page-break-inside: avoid; }
+            .photo-section { page-break-inside: avoid; }
+            .signatures-section { page-break-inside: avoid; }
+            .signatures-grid { page-break-inside: avoid; }
         }
-        
-        .form-row { 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-        }
-        
-        .checkbox-group {
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-        }
-        
-        /* Evitar página en blanco al inicio */
-        #reporteForm {
-            page-break-before: avoid !important;
-            break-before: avoid !important;
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-        }
-        
-        /* Asegurar que los logos se rendericen */
-        img, svg {
-            max-width: 100%;
-            page-break-inside: avoid !important;
-        }
-
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- HEADER CON LOGOS -->
         <div class="header">
-            <div class="logo-row">
-                <div class="logo-roca">
-                    <div class="dot-logo"></div>
-                    roca port
-                </div>
-                <div class="logo-mda">⚙ MDA47</div>
-            </div>
-            <h1>Reporte Mantenimiento</h1>
-            <p style="color: #666; font-size: 12px;">Completar en campo • Técnico</p>
+            <h1>📋 Reporte de Mantenimiento</h1>
+            <p>Roca Port - Proyecto MDA47</p>
+            <p style="font-size: 11px; color: #999; margin-top: 10px;">Reporte Diario de Campo</p>
         </div>
 
         <div class="form-content">
             <form id="reporteForm">
-                <!-- DATOS BÁSICOS -->
+                <!-- INFORMACIÓN BÁSICA -->
+                <div class="section-title">Información General</div>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="repNo">No. Reporte <span class="required-mark">*</span></label>
+                        <label for="repNo">No. Reporte *</label>
                         <input type="text" id="repNo" required>
                     </div>
                     <div class="form-group">
-                        <label for="fecha">Fecha <span class="required-mark">*</span></label>
+                        <label for="fecha">Fecha *</label>
                         <input type="date" id="fecha" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="responsable">Responsable (Mecánico) <span class="required-mark">*</span></label>
-                        <input type="text" id="responsable" placeholder="Nombre" required>
+                        <label for="responsable">Responsable (Mecánico) *</label>
+                        <input type="text" id="responsable" required>
                     </div>
                     <div class="form-group">
-                        <label for="supervisor">Supervisor <span class="required-mark">*</span></label>
-                        <input type="text" id="supervisor" placeholder="Nombre" required>
+                        <label for="supervisor">Supervisor *</label>
+                        <input type="text" id="supervisor" required>
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="tag">Tag Equipo <span class="required-mark">*</span></label>
-                        <input type="text" id="tag" placeholder="Ej: G-EQ-01" required>
+                        <label for="tag">Tag Equipo *</label>
+                        <input type="text" id="tag" required>
                     </div>
                     <div class="form-group">
                         <label for="cliente">Cliente</label>
-                        <input type="text" id="cliente" placeholder="HLB, Interno, etc.">
+                        <input type="text" id="cliente" value="HLB">
                     </div>
                 </div>
 
                 <!-- TIPO Y DISCIPLINA -->
+                <div class="section-title">Clasificación</div>
+                
                 <div class="form-group">
-                    <label>Tipo Mantenimiento <span class="required-mark">*</span></label>
+                    <label>Tipo de Mantenimiento *</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" name="tipo" value="Preventivo"> Preventivo</label>
-                        <label><input type="checkbox" name="tipo" value="Correctivo"> Correctivo</label>
-                        <label><input type="checkbox" name="tipo" value="Requerido"> Requerido</label>
+                        <label><input type="radio" name="tipo" value="Preventivo" checked> Preventivo</label>
+                        <label><input type="radio" name="tipo" value="Correctivo"> Correctivo</label>
+                        <label><input type="radio" name="tipo" value="Predictivo"> Predictivo</label>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Disciplina <span class="required-mark">*</span></label>
+                    <label>Disciplina *</label>
                     <div class="checkbox-group">
-                        <label><input type="checkbox" name="disciplina" value="Mecánico"> Mecánico</label>
-                        <label><input type="checkbox" name="disciplina" value="Eléctrico"> Eléctrico</label>
-                        <label><input type="checkbox" name="disciplina" value="A/C"> A/C</label>
-                        <label><input type="checkbox" name="disciplina" value="Hidráulico"> Hidráulico</label>
-                        <label><input type="checkbox" name="disciplina" value="Neumático"> Neumático</label>
+                        <label><input type="radio" name="disciplina" value="Mecánica" checked> Mecánica</label>
+                        <label><input type="radio" name="disciplina" value="Eléctrica"> Eléctrica</label>
+                        <label><input type="radio" name="disciplina" value="Instrumentación"> Instrumentación</label>
                     </div>
                 </div>
 
-                <!-- HORAS Y DESCRIPCIÓN -->
+                <!-- HORAS -->
+                <div class="section-title">Tiempo de Ejecución</div>
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="hhAsig">HH Asignadas</label>
-                        <input type="number" id="hhAsig" placeholder="0" step="0.5">
+                        <label for="hhAsig">Horas Asignadas</label>
+                        <input type="number" id="hhAsig" step="0.5" value="0">
                     </div>
                     <div class="form-group">
-                        <label for="hhEjec">HH Ejecutadas</label>
-                        <input type="number" id="hhEjec" placeholder="0" step="0.5">
+                        <label for="hhEjec">Horas Ejecutadas</label>
+                        <input type="number" id="hhEjec" step="0.5" value="0">
                     </div>
+                </div>
+
+                <!-- DESCRIPCIÓN -->
+                <div class="section-title">Descripción del Trabajo</div>
+                
+                <div class="form-group">
+                    <label for="descripcion">Descripción del Trabajo Realizado *</label>
+                    <textarea id="descripcion" required></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="descripcion">Descripción del Trabajo <span class="required-mark">*</span></label>
-                    <textarea id="descripcion" placeholder="¿Qué se hizo?" required></textarea>
+                    <label for="observaciones">Observaciones</label>
+                    <textarea id="observaciones"></textarea>
                 </div>
 
-                <!-- TABLA DE ACTIVIDADES -->
+                <!-- ACTIVIDADES REALIZADAS -->
+                <div class="section-title">Actividades Realizadas</div>
+                
                 <div class="table-section">
-                    <h3>📋 Actividades Realizadas</h3>
                     <table>
                         <thead>
                             <tr>
                                 <th style="width: 5%;">#</th>
-                                <th style="width: 60%;">Actividad</th>
-                                <th style="width: 20%;">Estado</th>
-                                <th style="width: 15%;">HH</th>
+                                <th style="width: 50%;">Actividad</th>
+                                <th style="width: 35%;">Estado</th>
+                                <th style="width: 10%;">HH</th>
                             </tr>
                         </thead>
-                        <tbody id="activitiesTable">
+                        <tbody id="actividadesTable">
                             <tr>
                                 <td>1</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Cambio aceite"></td>
+                                <td><input type="text" class="table-input" placeholder="Descripción actividad"></td>
                                 <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
+                                    <select class="table-input">
+                                        <option>Seleccionar</option>
+                                        <option>✓ Completada</option>
+                                        <option>⏳ En Progreso</option>
+                                        <option>⚠️ Con Problemas</option>
                                     </select>
                                 </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
+                                <td><input type="number" class="table-input" step="0.5" value="0"></td>
                             </tr>
                             <tr>
                                 <td>2</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Revisión filtros"></td>
+                                <td><input type="text" class="table-input" placeholder="Descripción actividad"></td>
                                 <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
+                                    <select class="table-input">
+                                        <option>Seleccionar</option>
+                                        <option>✓ Completada</option>
+                                        <option>⏳ En Progreso</option>
+                                        <option>⚠️ Con Problemas</option>
                                     </select>
                                 </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
+                                <td><input type="number" class="table-input" step="0.5" value="0"></td>
                             </tr>
                             <tr>
                                 <td>3</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Calibración"></td>
+                                <td><input type="text" class="table-input" placeholder="Descripción actividad"></td>
                                 <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
+                                    <select class="table-input">
+                                        <option>Seleccionar</option>
+                                        <option>✓ Completada</option>
+                                        <option>⏳ En Progreso</option>
+                                        <option>⚠️ Con Problemas</option>
                                     </select>
                                 </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Prueba funcional"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Limpieza y orden"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
-                            </tr>
-                            <tr>
-                                <td>6</td>
-                                <td><input type="text" class="table-input activity-name" placeholder="Ej: Documentación"></td>
-                                <td>
-                                    <select class="table-input activity-status">
-                                        <option value="">-- Seleccionar --</option>
-                                        <option value="Completada">✓ Completada</option>
-                                        <option value="Parcial">◐ Parcial</option>
-                                        <option value="Pendiente">✗ Pendiente</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input activity-hh" placeholder="0" step="0.5"></td>
+                                <td><input type="number" class="table-input" step="0.5" value="0"></td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <!-- FOTOS -->
+                <div class="section-title">Evidencia Fotográfica</div>
+                
                 <div class="photo-section">
-                    <h3 style="color: #003d82; margin-bottom: 10px; font-size: 14px;">📷 Fotos del Mantenimiento (máx 4)</h3>
                     <div class="photo-input">
-                        <div class="photo-label">Foto 1:</div>
-                        <input type="file" id="foto1" accept="image/*" capture="environment">
-                        <img id="preview1" class="photo-preview" style="display:none;">
+                        <span class="photo-label">Foto 1 - Estado Inicial</span>
+                        <input type="file" id="photo1" accept="image/*">
+                        <img id="photoPreview1" class="photo-preview" style="display:none;">
                     </div>
                     <div class="photo-input">
-                        <div class="photo-label">Foto 2:</div>
-                        <input type="file" id="foto2" accept="image/*" capture="environment">
-                        <img id="preview2" class="photo-preview" style="display:none;">
+                        <span class="photo-label">Foto 2 - Proceso</span>
+                        <input type="file" id="photo2" accept="image/*">
+                        <img id="photoPreview2" class="photo-preview" style="display:none;">
                     </div>
                     <div class="photo-input">
-                        <div class="photo-label">Foto 3:</div>
-                        <input type="file" id="foto3" accept="image/*" capture="environment">
-                        <img id="preview3" class="photo-preview" style="display:none;">
+                        <span class="photo-label">Foto 3 - Pruebas</span>
+                        <input type="file" id="photo3" accept="image/*">
+                        <img id="photoPreview3" class="photo-preview" style="display:none;">
                     </div>
                     <div class="photo-input">
-                        <div class="photo-label">Foto 4:</div>
-                        <input type="file" id="foto4" accept="image/*" capture="environment">
-                        <img id="preview4" class="photo-preview" style="display:none;">
+                        <span class="photo-label">Foto 4 - Estado Final</span>
+                        <input type="file" id="photo4" accept="image/*">
+                        <img id="photoPreview4" class="photo-preview" style="display:none;">
                     </div>
                 </div>
 
-                <!-- FIRMAS: MECÁNICO, SUPERVISOR, ACEPTACIÓN -->
+                <!-- ACEPTACIÓN -->
+                <div class="section-title">Aceptación</div>
+                
+                <div class="form-group">
+                    <label for="aceptaQuien">Aceptado por (Supervisor/Cliente) *</label>
+                    <input type="text" id="aceptaQuien" required>
+                </div>
+
+                <!-- FIRMAS -->
                 <div class="signatures-section">
-                    <h2 style="color: #003d82; font-size: 15px; margin-bottom: 15px;">✍️ Firmas Requeridas</h2>
-                    
+                    <h3 style="color: #003d82; margin-bottom: 15px;">Firmas Autorizadas</h3>
                     <div class="signatures-grid">
-                        <!-- Firma Mecánico -->
                         <div class="signature-block">
-                            <div class="signature-label">Firma Mecánico <span class="required-mark">*</span></div>
+                            <div class="signature-label">Firma Mecánico</div>
                             <canvas id="firmaMecanico"></canvas>
                             <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaMecanico')">Limpiar</button>
                         </div>
-
-                        <!-- Firma Supervisor -->
                         <div class="signature-block">
-                            <div class="signature-label">Firma Supervisor <span class="required-mark">*</span></div>
+                            <div class="signature-label">Firma Supervisor</div>
                             <canvas id="firmaSupervisor"></canvas>
                             <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaSupervisor')">Limpiar</button>
                         </div>
-                    </div>
-
-                    <!-- Firma de Aceptación (ancho completo) -->
-                    <div class="signature-block" style="margin-top: 15px;">
-                        <div class="signature-label">Firma: Aceptó Mantenimiento <span class="required-mark">*</span></div>
-                        <input type="text" id="aceptaQuien" placeholder="Nombre de quien acepta" style="margin-bottom: 8px;">
-                        <canvas id="firmaAceptacion"></canvas>
-                        <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaAceptacion')">Limpiar</button>
+                        <div class="signature-block">
+                            <div class="signature-label">Firma Aceptación</div>
+                            <canvas id="firmaAceptacion"></canvas>
+                            <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaAceptacion')">Limpiar</button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- BOTONES -->
                 <div class="button-group">
-                    <button type="button" class="btn-save" onclick="guardarLocal()">💾 Guardar Local</button>
+                    <button type="button" class="btn-save" onclick="guardarLocal()">💾 Guardar</button>
                     <button type="button" class="btn-load" onclick="cargarLocal()">📂 Cargar</button>
                 </div>
-                <button type="button" class="btn-pdf" onclick="exportarPDF()">📄 Exportar a PDF</button>
-            </form>
+                
+                <button type="button" class="btn-pdf" onclick="exportarPDF()">📄 Exportar PDF y Subir a Drive</button>
+                
+                <button type="button" class="btn-clear" onclick="limpiarForm()" style="width: 100%; margin-top: 10px;">🗑️ Limpiar Formulario</button>
 
-            <div class="status-msg" id="statusMsg"></div>
+                <!-- ESTADO -->
+                <div id="statusMsg" class="status-msg"></div>
+            </form>
         </div>
     </div>
 
     <script>
-        // ⚙️ CONFIGURACIÓN DEL SERVIDOR
-        // Cambiar esta URL cuando esté en Render
-        const SERVER_URL = 'https://roca-reportes-server.onrender.com'; // Render producción
-        // const SERVER_URL = 'http://localhost:5000'; // Local desarrollo
-        
-        // Inicializar canvas de firmas
-        const canvases = ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'];
-        const ctxs = {};
-        const isDrawingStates = {};
+        // ⭐ URL DEL BACKEND
+        const BACKEND_URL = "https://roca-reportes-server.onrender.com";
 
-        canvases.forEach(canvasId => {
+        // Establecer fecha actual
+        document.getElementById('fecha').valueAsDate = new Date();
+
+        // Configurar firma en canvas
+        function inicializarFirma(canvasId) {
             const canvas = document.getElementById(canvasId);
             const ctx = canvas.getContext('2d');
-            ctxs[canvasId] = ctx;
-            isDrawingStates[canvasId] = false;
+            let dibujando = false;
 
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
+            canvas.addEventListener('mousedown', () => { dibujando = true; });
+            canvas.addEventListener('mouseup', () => { dibujando = false; });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!dibujando) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x, y, 2, 2);
+            });
 
-            canvas.addEventListener('mousedown', () => { isDrawingStates[canvasId] = true; });
-            canvas.addEventListener('mouseup', () => { isDrawingStates[canvasId] = false; });
-            canvas.addEventListener('mousemove', (e) => { if(isDrawingStates[canvasId]) dibujarEnCanvas(e, canvas, ctx); });
-
-            canvas.addEventListener('touchstart', (e) => { isDrawingStates[canvasId] = true; e.preventDefault(); });
-            canvas.addEventListener('touchend', () => { isDrawingStates[canvasId] = false; });
-            canvas.addEventListener('touchmove', (e) => { if(isDrawingStates[canvasId]) dibujarEnCanvas(e, canvas, ctx); e.preventDefault(); });
-        });
-
-        function dibujarEnCanvas(e, canvas, ctx) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX ? e.clientX - rect.left : e.touches[0].clientX - rect.left;
-            const y = e.clientY ? e.clientY - rect.top : e.touches[0].clientY - rect.top;
-            ctx.fillStyle = '#000';
-            ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2);
-            ctx.fill();
+            canvas.addEventListener('touchstart', () => { dibujando = true; });
+            canvas.addEventListener('touchend', () => { dibujando = false; });
+            canvas.addEventListener('touchmove', (e) => {
+                if (!dibujando) return;
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#000';
+                ctx.fillRect(x, y, 2, 2);
+            });
         }
 
         function limpiarFirma(canvasId) {
-            const ctx = ctxs[canvasId];
             const canvas = document.getElementById(canvasId);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
         }
 
-        // Fotos
-        ['foto1', 'foto2', 'foto3', 'foto4'].forEach((id, idx) => {
+        // Cargar fotos
+        ['photo1', 'photo2', 'photo3', 'photo4'].forEach((id, i) => {
             document.getElementById(id).addEventListener('change', (e) => {
                 const reader = new FileReader();
-                reader.onload = () => {
-                    document.getElementById(`preview${idx+1}`).src = reader.result;
-                    document.getElementById(`preview${idx+1}`).style.display = 'block';
+                reader.onload = (event) => {
+                    document.getElementById(`photoPreview${i + 1}`).src = event.target.result;
+                    document.getElementById(`photoPreview${i + 1}`).style.display = 'block';
                 };
-                if(e.target.files[0]) reader.readAsDataURL(e.target.files[0]);
+                reader.readAsDataURL(e.target.files[0]);
             });
         });
 
-        // Guardar
+        // Guardar y cargar datos
         function guardarLocal() {
-            const activities = [];
-            document.querySelectorAll('#activitiesTable tr').forEach((row, idx) => {
-                const name = row.querySelector('.activity-name').value;
-                const status = row.querySelector('.activity-status').value;
-                const hh = row.querySelector('.activity-hh').value;
-                if(name || status || hh) {
-                    activities.push({ num: idx+1, name, status, hh });
-                }
-            });
-
             const datos = {
                 repNo: document.getElementById('repNo').value,
                 fecha: document.getElementById('fecha').value,
@@ -497,207 +631,132 @@
                 supervisor: document.getElementById('supervisor').value,
                 tag: document.getElementById('tag').value,
                 cliente: document.getElementById('cliente').value,
-                tipo: Array.from(document.querySelectorAll('input[name="tipo"]:checked')).map(x => x.value),
-                disciplina: Array.from(document.querySelectorAll('input[name="disciplina"]:checked')).map(x => x.value),
+                tipo: document.querySelector('input[name="tipo"]:checked').value,
+                disciplina: document.querySelector('input[name="disciplina"]:checked').value,
                 hhAsig: document.getElementById('hhAsig').value,
                 hhEjec: document.getElementById('hhEjec').value,
                 descripcion: document.getElementById('descripcion').value,
-                activities: activities,
-                firmaMecanico: document.getElementById('firmaMecanico').toDataURL(),
-                firmaSupervisor: document.getElementById('firmaSupervisor').toDataURL(),
-                aceptaQuien: document.getElementById('aceptaQuien').value,
-                firmaAceptacion: document.getElementById('firmaAceptacion').toDataURL(),
-                fotos: []
+                observaciones: document.getElementById('observaciones').value,
+                aceptaQuien: document.getElementById('aceptaQuien').value
             };
-            ['foto1', 'foto2', 'foto3', 'foto4'].forEach((id, idx) => {
-                const preview = document.getElementById(`preview${idx+1}`);
-                if (preview.style.display !== 'none') datos.fotos.push(preview.src);
-            });
-            localStorage.setItem('reporte_' + Date.now(), JSON.stringify(datos));
-            mostrarEstado('✅ Guardado localmente', 'success');
+            localStorage.setItem('reporteFormData', JSON.stringify(datos));
+            mostrarEstado('✅ Datos guardados localmente', 'success');
         }
 
-        // Cargar
         function cargarLocal() {
-            const keys = Object.keys(localStorage);
-            if (keys.length === 0) { 
-                mostrarEstado('❌ No hay reportes guardados', 'error');
-                return;
-            }
-            const ultimo = keys[keys.length - 1];
-            const datos = JSON.parse(localStorage.getItem(ultimo));
-            
-            document.getElementById('repNo').value = datos.repNo || '';
-            document.getElementById('fecha').value = datos.fecha || '';
-            document.getElementById('responsable').value = datos.responsable || '';
-            document.getElementById('supervisor').value = datos.supervisor || '';
-            document.getElementById('tag').value = datos.tag || '';
-            document.getElementById('cliente').value = datos.cliente || '';
-            document.getElementById('hhAsig').value = datos.hhAsig || '';
-            document.getElementById('hhEjec').value = datos.hhEjec || '';
-            document.getElementById('descripcion').value = datos.descripcion || '';
-            document.getElementById('aceptaQuien').value = datos.aceptaQuien || '';
-            
-            datos.tipo.forEach(t => { document.querySelector(`input[name="tipo"][value="${t}"]`).checked = true; });
-            datos.disciplina.forEach(d => { document.querySelector(`input[name="disciplina"][value="${d}"]`).checked = true; });
-            
-            // Cargar actividades
-            if(datos.activities && datos.activities.length > 0) {
-                const rows = document.querySelectorAll('#activitiesTable tr');
-                datos.activities.forEach((act, idx) => {
-                    if(rows[idx]) {
-                        rows[idx].querySelector('.activity-name').value = act.name || '';
-                        rows[idx].querySelector('.activity-status').value = act.status || '';
-                        rows[idx].querySelector('.activity-hh').value = act.hh || '';
-                    }
-                });
-            }
-            
-            // Cargar firmas
-            ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(sigId => {
-                const img = new Image();
-                img.onload = () => {
-                    const ctx = ctxs[sigId];
-                    ctx.drawImage(img, 0, 0);
-                };
-                img.src = datos[sigId] || '';
-            });
-            
-            // Cargar fotos
-            datos.fotos.forEach((foto, idx) => {
-                document.getElementById(`preview${idx+1}`).src = foto;
-                document.getElementById(`preview${idx+1}`).style.display = 'block';
-            });
-            mostrarEstado('✅ Reporte cargado', 'success');
-        }
-
-        // Exportar a PDF y subir a Drive
-        function exportarPDF() {
-            try {
-                // Validar campos requeridos
-                const repNo = document.getElementById('repNo').value;
-                const fecha = document.getElementById('fecha').value;
-                const responsable = document.getElementById('responsable').value;
-                const supervisor = document.getElementById('supervisor').value;
-                const tag = document.getElementById('tag').value;
-                
-                if (!repNo || !fecha || !responsable || !supervisor || !tag) {
-                    mostrarEstado('❌ Completa: No. Reporte, Fecha, Responsable, Supervisor y Tag Equipo', 'error');
-                    return;
-                }
-                
-                mostrarEstado('⏳ Generando y subiendo a Drive...', 'success');
-                
-                const element = document.getElementById('reporteForm');
-                const opt = {
-                    margin: [15, 15, 15, 15],
-                    filename: `reporte_${repNo}.pdf`,
-                    image: { type: 'jpeg', quality: 0.95 },
-                    html2canvas: { 
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true,
-                        logging: false,
-                        backgroundColor: '#ffffff',
-                        windowHeight: 1400,
-                        windowWidth: 816,
-                        useCORS: true,
-                        allowTaint: true
-                    },
-                    jsPDF: { 
-                        orientation: 'portrait', 
-                        unit: 'mm', 
-                        format: 'letter',
-                        compress: true
-                    },
-                    pagebreak: { 
-                        mode: ['avoid-all', 'css', 'legacy'],
-                        avoid: ['table', '.signatures-grid', '.photo-section']
-                    }
-                };
-                
-                setTimeout(() => {
-                    html2pdf()
-                        .set(opt)
-                        .from(element)
-                        .toPdf()
-                        .get('pdf')
-                        .then((pdfObj) => {
-                            // Obtener PDF como data URL
-                            const pdfDataUrl = pdfObj.output('dataurlstring');
-                            
-                            // Enviar al servidor Render
-                            fetch('https://roca-reportes-server.onrender.com/api/upload-pdf', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    pdf: pdfDataUrl,
-                                    filename: `reporte_${repNo}.pdf`
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    mostrarEstado(`✅ ${data.message}`, 'success');
-                                    // Limpiar formulario después de 2 segundos
-                                    setTimeout(() => {
-                                        document.getElementById('reporteForm').reset();
-                                        ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(id => {
-                                            limpiarFirma(id);
-                                        });
-                                    }, 2000);
-                                } else {
-                                    mostrarEstado(`❌ ${data.error}`, 'error');
-                                }
-                            })
-                            .catch(err => {
-                                console.error('Error al conectar servidor:', err);
-                                mostrarEstado('⚠️ Servidor no disponible. ¿Está corriendo python en tu máquina?', 'error');
-                            });
-                        })
-                        .catch((err) => {
-                            console.error('Error al generar PDF:', err);
-                            mostrarEstado('❌ Error al generar PDF. Revisa la consola.', 'error');
-                        });
-                }, 300);
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarEstado('❌ Error inesperado. Contacta con soporte.', 'error');
+            const datos = JSON.parse(localStorage.getItem('reporteFormData'));
+            if (datos) {
+                document.getElementById('repNo').value = datos.repNo;
+                document.getElementById('fecha').value = datos.fecha;
+                document.getElementById('responsable').value = datos.responsable;
+                document.getElementById('supervisor').value = datos.supervisor;
+                document.getElementById('tag').value = datos.tag;
+                document.getElementById('cliente').value = datos.cliente;
+                document.querySelector(`input[name="tipo"][value="${datos.tipo}"]`).checked = true;
+                document.querySelector(`input[name="disciplina"][value="${datos.disciplina}"]`).checked = true;
+                document.getElementById('hhAsig').value = datos.hhAsig;
+                document.getElementById('hhEjec').value = datos.hhEjec;
+                document.getElementById('descripcion').value = datos.descripcion;
+                document.getElementById('observaciones').value = datos.observaciones;
+                document.getElementById('aceptaQuien').value = datos.aceptaQuien;
+                mostrarEstado('✅ Datos cargados', 'success');
+            } else {
+                mostrarEstado('⚠️ No hay datos guardados', 'error');
             }
         }
 
-        // Estado
+        function limpiarForm() {
+            document.getElementById('reporteForm').reset();
+            document.getElementById('fecha').valueAsDate = new Date();
+            ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(id => limpiarFirma(id));
+            mostrarEstado('✅ Formulario limpiado', 'info');
+        }
+
         function mostrarEstado(msg, tipo) {
             const el = document.getElementById('statusMsg');
             el.textContent = msg;
             el.className = `status-msg ${tipo}`;
             el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, 3000);
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
         }
 
-        // Establecer fecha actual por defecto
-        document.getElementById('fecha').valueAsDate = new Date();
-        
-        // Llenar datos de ejemplo para prueba rápida
-        function llenarEjemplo() {
-            document.getElementById('repNo').value = 'MDA47-' + Date.now();
-            document.getElementById('fecha').valueAsDate = new Date();
-            document.getElementById('responsable').value = 'Juan Daniel Salvador';
-            document.getElementById('supervisor').value = 'Antonio E. Hernández';
-            document.getElementById('tag').value = 'G-BOMBA-01';
-            document.getElementById('cliente').value = 'HLB (Halliburton)';
-            document.getElementById('hhAsig').value = '8';
-            document.getElementById('hhEjec').value = '7.5';
-            document.getElementById('descripcion').value = 'Mantenimiento preventivo de bomba centrífuga. Inspección de sellos, lubricación, alineación y pruebas de rendimiento.';
-            document.getElementById('aceptaQuien').value = 'Jocelyn (HLB)';
-            
-            document.querySelector('input[name="tipo"][value="Preventivo"]').checked = true;
-            document.querySelector('input[name="disciplina"][value="Mecánica"]').checked = true;
-            
-            mostrarEstado('✅ Datos de ejemplo cargados', 'success');
+        // EXPORTAR PDF
+        function exportarPDF() {
+            const repNo = document.getElementById('repNo').value.trim();
+            if (!repNo) {
+                mostrarEstado('⚠️ Completa al menos: No. Reporte, Fecha, Responsable, Supervisor, Tag Equipo', 'error');
+                return;
+            }
+
+            mostrarEstado('⏳ Generando PDF...', 'info');
+
+            const element = document.getElementById('reporteForm');
+            const opt = {
+                margin: [15, 15, 15, 15],
+                filename: `reporte_${repNo}.pdf`,
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowHeight: 1400,
+                    windowWidth: 816
+                },
+                jsPDF: { 
+                    orientation: 'portrait', 
+                    unit: 'mm', 
+                    format: 'letter',
+                    compress: true
+                },
+                pagebreak: { 
+                    mode: ['avoid-all', 'css', 'legacy'],
+                    avoid: ['table', '.signatures-grid', '.photo-section']
+                }
+            };
+
+            setTimeout(() => {
+                html2pdf()
+                    .set(opt)
+                    .from(element)
+                    .toPdf()
+                    .get('pdf')
+                    .then((pdfObj) => {
+                        const pdfDataUrl = pdfObj.output('dataurlstring');
+                        mostrarEstado('📤 Enviando a Drive...', 'info');
+                        
+                        fetch(`${BACKEND_URL}/api/upload-pdf`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                pdf: pdfDataUrl,
+                                filename: `reporte_${repNo}_${new Date().getTime()}.pdf`
+                            })
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                mostrarEstado(`✅ Reporte subido a Drive: ${data.message}`, 'success');
+                                setTimeout(() => limpiarForm(), 2000);
+                            } else {
+                                mostrarEstado(`❌ Error: ${data.error}`, 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            mostrarEstado('❌ Error conexión. Verifica que Render esté disponible.', 'error');
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        mostrarEstado('❌ Error generando PDF', 'error');
+                    });
+            }, 300);
         }
+
+        // Inicializar firmas
+        ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(id => inicializarFirma(id));
     </script>
 </body>
 </html>
