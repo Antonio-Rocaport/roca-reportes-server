@@ -12,6 +12,8 @@ import json
 import base64
 import requests
 import logging
+import time
+import jwt
 
 app = Flask(__name__)
 
@@ -39,9 +41,6 @@ DRIVE_FOLDER_ID = "1bu93DnzhCZuVic-kE85xFl4LXeeHXL4P"
 def obtener_access_token(creds_dict):
     """Genera un token de acceso manual mediante una petición directa a Google Auth OAuth2"""
     try:
-        import time
-        import jwt
-        
         ahora = int(time.time())
         payload = {
             "iss": creds_dict["client_email"],
@@ -52,7 +51,7 @@ def obtener_access_token(creds_dict):
             "scope": "https://googleapis.com"
         }
         
-        # Firma el JWT de forma nativa con la llave privada del robot
+        # Firma el JWT usando PyJWT con la llave privada del JSON de credenciales
         token_firmado = jwt.encode(payload, creds_dict["private_key"], algorithm="RS256")
         
         # Solicita el token de acceso real a Google
@@ -70,7 +69,7 @@ def obtener_access_token(creds_dict):
 
 @app.route('/api/upload-pdf', methods=['POST', 'OPTIONS'])
 def upload_pdf():
-    """Recibe el PDF en base64 del nuevo formulario y lo sube de verdad por HTTP REST"""
+    """Recibe el PDF en base64 del nuevo formulario y lo sube por HTTP REST Multipart"""
     if request.method == 'OPTIONS':
         return '', 204
     
@@ -98,7 +97,7 @@ def upload_pdf():
         # Obtener token de acceso fresco y válido
         access_token = obtener_access_token(creds_dict)
         if not access_token:
-            return jsonify({'error': 'No se pudo autenticar con Google'}), 500
+            return jsonify({'error': 'No se pudo autenticar con Google (Token Fallido)'}), 500
             
         # 📤 SUBIDA MULTIPART REAL A GOOGLE DRIVE API V3
         url = "https://googleapis.com"
