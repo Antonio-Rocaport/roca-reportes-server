@@ -383,43 +383,39 @@
             .signatures-grid { page-break-inside: avoid; }
         }
 
-        /* CONFIGURACIÓN REAL PARA PDF: CARTA 8.5 x 11 in */
+        /* CONFIGURACIÓN DE EXPORTACIÓN PDF - CARTA */
         @page {
             size: Letter portrait;
             margin: 0;
         }
 
+        /* Estos elementos son solo para uso en pantalla y nunca deben entrar al PDF */
+        .pdf-hide {
+            display: none !important;
+        }
+
         .pdf-export-mode {
-            width: 190.5mm !important;
-            max-width: 190.5mm !important;
+            width: 800px !important;
+            max-width: 800px !important;
             margin: 0 auto !important;
-            padding: 0 !important;
             background: #ffffff !important;
             box-shadow: none !important;
             border-radius: 0 !important;
         }
 
         .pdf-export-mode .form-content {
-            padding: 8mm !important;
-        }
-
-        .pdf-export-mode .section-title {
-            break-after: avoid;
-            page-break-after: avoid;
+            padding: 25px !important;
         }
 
         .pdf-export-mode .form-group,
-        .pdf-export-mode .form-row {
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-
+        .pdf-export-mode .form-row,
         .pdf-export-mode .table-section,
         .pdf-export-mode .photo-section,
         .pdf-export-mode .signatures-section {
             break-inside: avoid;
             page-break-inside: avoid;
         }
+
 
     </style>
 </head>
@@ -773,12 +769,16 @@
 
             mostrarEstado('⏳ Generando PDF en tamaño Carta...', 'info');
 
-            const element = document.getElementById('reporteForm');
             const container = document.querySelector('.container');
 
-            // Activar un ancho físico equivalente al área imprimible de Carta.
-            // Esto evita que html2canvas capture un formulario de 800px y luego
-            // jsPDF lo recorte o lo desplace al dividirlo en páginas.
+            // Ocultar controles que solo sirven para capturar/editar el reporte.
+            const elementosOcultar = container.querySelectorAll(
+                '.button-group, .btn-pdf, .btn-clear, .btn-clear-sig, .status-msg, input[type="file"]'
+            );
+            elementosOcultar.forEach(el => el.classList.add('pdf-hide'));
+
+            // Exportamos el CONTENEDOR completo (incluye encabezado y logos),
+            // no solamente el formulario. Esto evita que el PDF quede recortado.
             container.classList.add('pdf-export-mode');
 
             const opt = {
@@ -793,8 +793,8 @@
                     backgroundColor: '#ffffff',
                     scrollX: 0,
                     scrollY: 0,
-                    windowWidth: 794,
-                    windowHeight: document.documentElement.scrollHeight
+                    windowWidth: 800,
+                    windowHeight: container.scrollHeight
                 },
                 jsPDF: {
                     orientation: 'portrait',
@@ -802,8 +802,6 @@
                     format: 'letter',
                     compress: true
                 },
-                // NO usar avoid-all: provoca páginas en blanco y desplazamientos
-                // cuando existen grids, tablas y elementos de altura variable.
                 pagebreak: {
                     mode: ['css', 'legacy'],
                     avoid: ['.form-group', '.form-row', '.table-section', '.photo-section', '.signatures-section']
@@ -813,42 +811,39 @@
             setTimeout(() => {
                 html2pdf()
                     .set(opt)
-                    .from(element)
+                    .from(container)
                     .toPdf()
                     .get('pdf')
                     .then((pdfObj) => {
                         const pdfDataUrl = pdfObj.output('dataurlstring');
                         mostrarEstado('📤 Enviando a Drive...', 'info');
 
-                        fetch(`${BACKEND_URL}/api/upload-pdf`, {
+                        return fetch(`${BACKEND_URL}/api/upload-pdf`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 pdf: pdfDataUrl,
                                 filename: `reporte_${repNo}_${new Date().getTime()}.pdf`
                             })
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                mostrarEstado(`✅ Reporte subido a Drive: ${data.message}`, 'success');
-                                setTimeout(() => limpiarForm(), 2000);
-                            } else {
-                                mostrarEstado(`❌ Error: ${data.error}`, 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            mostrarEstado('❌ Error conexión. Verifica que Render esté disponible.', 'error');
                         });
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            mostrarEstado(`✅ Reporte subido a Drive: ${data.message}`, 'success');
+                            setTimeout(() => limpiarForm(), 2000);
+                        } else {
+                            mostrarEstado(`❌ Error: ${data.error}`, 'error');
+                        }
                     })
                     .catch(err => {
                         console.error(err);
-                        mostrarEstado('❌ Error generando PDF', 'error');
+                        mostrarEstado('❌ Error generando o enviando el PDF.', 'error');
                     })
                     .finally(() => {
-                        // Regresar el formulario a su apariencia normal después de generar el PDF.
+                        // Restaurar la vista normal del formulario.
                         container.classList.remove('pdf-export-mode');
+                        elementosOcultar.forEach(el => el.classList.remove('pdf-hide'));
                     });
             }, 300);
         }
