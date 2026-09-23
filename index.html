@@ -3,760 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte Mantenimiento - Roca Port MDA47</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <title>Reporte Mantenimiento - Roca Port</title>
+    <script src="https://cloudflare.com"></script>
+    <script src="https://cloudflare.com"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: Arial, sans-serif; 
-            background-color: #f5f5f5; 
-            padding: 10px;
-            line-height: 1.4;
-        }
-        
-        .container { 
-            max-width: 800px; 
-            margin: 0 auto; 
-            background: white; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-            overflow: hidden;
-        }
-        
-        .header { 
-            background: white; 
-            padding: 20px; 
-            border-bottom: 3px solid #003d82; 
-            text-align: center;
-        }
-        
-        .header h1 { 
-            color: #003d82; 
-            font-size: 20px; 
-            margin: 10px 0;
-        }
-        
-        .header p { 
-            color: #666; 
-            font-size: 12px; 
-            margin: 5px 0;
-        }
-        
-        .form-content { 
-            padding: 25px; 
-        }
-        
-        .form-group { 
-            margin-bottom: 15px; 
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        label { 
-            display: block; 
-            font-weight: bold; 
-            color: #333; 
-            margin-bottom: 5px; 
-            font-size: 13px;
-        }
-        
-        input[type="text"], 
-        input[type="date"], 
-        input[type="number"], 
-        textarea, 
-        select { 
-            width: 100%; 
-            padding: 8px; 
-            border: 1px solid #ccc; 
-            border-radius: 4px; 
-            font-size: 13px;
-            font-family: Arial, sans-serif;
-        }
-        
-        textarea { 
-            resize: vertical; 
-            min-height: 80px;
-            line-height: 1.4;
-        }
-        
-        .form-row { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 15px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        .checkbox-group { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 15px; 
-            margin-top: 8px;
-        }
-        
-        .checkbox-group label { 
-            margin: 0; 
-            display: flex; 
-            align-items: center; 
-            font-weight: normal;
-        }
-        
-        input[type="checkbox"], 
-        input[type="radio"] { 
-            margin-right: 5px; 
-            width: 16px; 
-            height: 16px; 
-            cursor: pointer;
-        }
-        
-        .section-title { 
-            background: #003d82; 
-            color: white; 
-            padding: 12px 15px; 
-            margin: 20px 0 15px 0; 
-            font-weight: bold; 
-            font-size: 14px;
-            border-radius: 4px;
-        }
-        
-        .table-section { 
-            margin: 20px 0; 
-            padding: 15px; 
-            background: #f9f9f9; 
-            border: 1px solid #ddd; 
-            border-radius: 4px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            font-size: 12px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        th { 
-            background: #003d82; 
-            color: white; 
-            padding: 10px; 
-            text-align: left; 
-            font-weight: bold;
-        }
-        
-        td { 
-            padding: 8px; 
-            border-bottom: 1px solid #ddd;
-        }
-        
-        tr:nth-child(even) { 
-            background: #f0f0f0; 
-        }
-        
-        input.table-input { 
-            width: 100%; 
-            padding: 4px; 
-            border: 1px solid #ccc; 
-            border-radius: 2px; 
-            font-size: 11px;
-        }
-        
-        .photo-section { 
-            margin: 20px 0; 
-            padding: 15px; 
-            background: #f9f9f9; 
-            border: 1px solid #ddd; 
-            border-radius: 4px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        .photo-input { 
-            margin-bottom: 15px;
-        }
-        
-        .photo-label { 
-            font-weight: bold; 
-            margin-bottom: 5px; 
-            display: block;
-        }
-        
-        .photo-preview { 
-            width: 100%; 
-            height: 150px; 
-            border: 2px solid #ddd; 
-            border-radius: 4px; 
-            object-fit: cover; 
-            margin-bottom: 5px;
-            page-break-inside: avoid;
-        }
-        
-        .signatures-section { 
-            margin: 20px 0; 
-            padding: 20px; 
-            border-top: 2px solid #003d82;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        .signatures-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr 1fr; 
-            gap: 15px; 
-            margin-top: 15px;
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        .signature-block { 
-            page-break-inside: avoid;
-            break-inside: avoid;
-        }
-        
-        .signature-label { 
-            font-weight: bold; 
-            color: #003d82; 
-            margin-bottom: 8px; 
-            font-size: 12px;
-        }
-        
-        canvas { 
-            border: 2px solid #ddd; 
-            border-radius: 4px; 
-            display: block; 
-            width: 100%; 
-            height: 80px; 
-            cursor: crosshair; 
-            background: white;
-            touch-action: none;
-        }
-        
-        .btn-clear-sig { 
-            background-color: #6c757d; 
-            color: white; 
-            padding: 5px 10px; 
-            font-size: 11px; 
-            border: none; 
-            border-radius: 3px; 
-            cursor: pointer; 
-            margin-top: 5px;
-        }
-        
-        .btn-clear-sig:hover { 
-            background-color: #545b62; 
-        }
-        
-        .button-group { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            margin-top: 20px;
-        }
-        
-        button { 
-            padding: 10px; 
-            font-size: 13px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            transition: background 0.3s;
-        }
-        
-        .btn-save { 
-            background-color: #28a745; 
-            color: white;
-        }
-        
-        .btn-save:hover { 
-            background-color: #218838; 
-        }
-        
-        .btn-load { 
-            background-color: #007bff; 
-            color: white;
-        }
-        
-        .btn-load:hover { 
-            background-color: #0056b3; 
-        }
-        
-        .btn-pdf { 
-            background-color: #dc3545; 
-            color: white; 
-            width: 100%;
-            grid-column: 1 / -1;
-        }
-        
-        .btn-pdf:hover { 
-            background-color: #c82333; 
-        }
-        
-        .btn-clear { 
-            background-color: #6c757d; 
-            color: white;
-        }
-        
-        .btn-clear:hover { 
-            background-color: #5a6268; 
-        }
-        
-        .status-msg { 
-            margin-top: 15px; 
-            padding: 12px; 
-            border-radius: 4px; 
-            text-align: center; 
-            font-weight: bold; 
-            font-size: 13px; 
-            display: none;
-        }
-        
-        .status-msg.success { 
-            background-color: #d4edda; 
-            color: #155724; 
-            border: 1px solid #c3e6cb;
-        }
-        
-        .status-msg.error { 
-            background-color: #f8d7da; 
-            color: #721c24; 
-            border: 1px solid #f5c6cb;
-        }
-        
-        .status-msg.info { 
-            background-color: #d1ecf1; 
-            color: #0c5460; 
-            border: 1px solid #bee5eb;
-        }
-        
-        /* ESTILOS PARA PDF */
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .form-container { background: #ffffff; width: 100%; max-width: 800px; padding: 30px; border-top: 5px solid #0056b3; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eaeaea; padding-bottom: 15px; margin-bottom: 25px; }
+        .logo-area { font-weight: bold; font-size: 24px; color: #0056b3; }
+        .meta-info { font-size: 12px; color: #666; text-align: right; }
+        h2 { color: #333; margin-top: 0; font-size: 22px; }
+        .subtitle { color: #666; font-size: 13px; margin-top: -15px; margin-bottom: 25px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { font-size: 13px; font-weight: 600; color: #444; margin-bottom: 5px; }
+        label.required::after { content: " *"; color: #dc3545; }
+        input[type="text"], input[type="date"], select, textarea { padding: 8px 12px; border: 1px solid #cccccc; border-radius: 4px; font-size: 14px; background: #fafafa; width: 100%; }
+        .checkbox-group { display: flex; gap: 15px; padding: 5px 0; flex-wrap: wrap; }
+        .checkbox-item { display: flex; align-items: center; gap: 5px; font-size: 14px; }
+        .section-title { background: #f8f9fa; padding: 8px 12px; font-size: 16px; font-weight: bold; color: #0056b3; border-left: 4px solid #0056b3; margin: 30px 0 15px 0; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; table-layout: fixed; }
+        th { background: #0056b3; color: white; padding: 10px; text-align: left; }
+        td { border: 1px solid #eaeaea; padding: 8px; }
+        .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .signature-area { border: 1px solid #cccccc; border-radius: 4px; background: #fff; height: 130px; }
+        canvas { width: 100%; height: 100%; display: block; }
+        .btn-clear { background: #6c757d; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; margin-top: 5px; }
+        .actions-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 40px; }
+        .btn-main { padding: 12px; border: none; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; text-align: center; }
+        .btn-save-local { background: #28a745; }
+        .btn-load-local { background: #17a2b8; }
+        .btn-submit { background: #dc3545; grid-column: span 2; padding: 14px; font-size: 16px; }
+
+        /* Estilos clave para obligar el encuadre correcto en la hoja tamaño carta */
         @media print {
-            body { background: white; }
-            .container { box-shadow: none; }
-            .form-group { page-break-inside: avoid; }
-            .form-row { page-break-inside: avoid; }
-            table { page-break-inside: avoid; }
-            .table-section { page-break-inside: avoid; }
-            .photo-section { page-break-inside: avoid; }
-            .signatures-section { page-break-inside: avoid; }
-            .signatures-grid { page-break-inside: avoid; }
+            body { padding: 0; background: none; }
+            .form-container { width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+            .actions-bar, .btn-clear { display: none !important; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📋 Reporte de Mantenimiento</h1>
-            <p>Roca Port - Proyecto MDA47</p>
-            <p style="font-size: 11px; color: #999; margin-top: 10px;">Reporte Diario de Campo</p>
+
+<div class="form-container" id="reporte-formulario">
+    <div class="header">
+        <div class="logo-area">Roca Port</div>
+        <div class="meta-info"><strong>⚙ MDA47</strong><br>Completo en campo • Técnico</div>
+    </div>
+
+    <h2># Reporte Mantenimiento</h2>
+    <div class="subtitle">Complete cuidadosamente todos los campos requeridos.</div>
+
+    <div class="grid-2">
+        <div class="form-group"><label class="required">No. Reporte</label><input type="text" id="no_reporte" required placeholder="Ej: ms-e-a-01"></div>
+        <div class="form-group"><label class="required">Fecha</label><input type="date" id="fecha" required></div>
+    </div>
+
+    <div class="grid-2">
+        <div class="form-group"><label class="required">Responsable (Mecánico)</label><input type="text" id="responsable" required></div>
+        <div class="form-group"><label class="required">Supervisor</label><input type="text" id="supervisor" required></div>
+    </div>
+
+    <div class="grid-2">
+        <div class="form-group"><label class="required">Tag Equipo</label><input type="text" id="tag_equipo" required></div>
+        <div class="form-group"><label>Cliente</label><input type="text" id="cliente"></div>
+    </div>
+
+    <div class="grid-2">
+        <div class="form-group">
+            <label class="required">Tipo Mantenimiento</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="tipo_mant" value="Preventivo"> Preventivo</label>
+                <label class="checkbox-item"><input type="checkbox" name="tipo_mant" value="Correctivo"> Correctivo</label>
+                <label class="checkbox-item"><input type="checkbox" name="tipo_mant" value="Requerido"> Requerido</label>
+            </div>
         </div>
-
-        <div class="form-content">
-            <form id="reporteForm">
-                <!-- INFORMACIÓN BÁSICA -->
-                <div class="section-title">Información General</div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="repNo">No. Reporte *</label>
-                        <input type="text" id="repNo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha">Fecha *</label>
-                        <input type="date" id="fecha" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="responsable">Responsable (Mecánico) *</label>
-                        <input type="text" id="responsable" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="supervisor">Supervisor *</label>
-                        <input type="text" id="supervisor" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="tag">Tag Equipo *</label>
-                        <input type="text" id="tag" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cliente">Cliente</label>
-                        <input type="text" id="cliente" value="HLB">
-                    </div>
-                </div>
-
-                <!-- TIPO Y DISCIPLINA -->
-                <div class="section-title">Clasificación</div>
-                
-                <div class="form-group">
-                    <label>Tipo de Mantenimiento *</label>
-                    <div class="checkbox-group">
-                        <label><input type="radio" name="tipo" value="Preventivo" checked> Preventivo</label>
-                        <label><input type="radio" name="tipo" value="Correctivo"> Correctivo</label>
-                        <label><input type="radio" name="tipo" value="Predictivo"> Predictivo</label>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Disciplina *</label>
-                    <div class="checkbox-group">
-                        <label><input type="radio" name="disciplina" value="Mecánica" checked> Mecánica</label>
-                        <label><input type="radio" name="disciplina" value="Eléctrica"> Eléctrica</label>
-                        <label><input type="radio" name="disciplina" value="Instrumentación"> Instrumentación</label>
-                    </div>
-                </div>
-
-                <!-- HORAS -->
-                <div class="section-title">Tiempo de Ejecución</div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="hhAsig">Horas Asignadas</label>
-                        <input type="number" id="hhAsig" step="0.5" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="hhEjec">Horas Ejecutadas</label>
-                        <input type="number" id="hhEjec" step="0.5" value="0">
-                    </div>
-                </div>
-
-                <!-- DESCRIPCIÓN -->
-                <div class="section-title">Descripción del Trabajo</div>
-                
-                <div class="form-group">
-                    <label for="descripcion">Descripción del Trabajo Realizado *</label>
-                    <textarea id="descripcion" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="observaciones">Observaciones</label>
-                    <textarea id="observaciones"></textarea>
-                </div>
-
-                <!-- ACTIVIDADES REALIZADAS -->
-                <div class="section-title">Actividades Realizadas</div>
-                
-                <div class="table-section">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 5%;">#</th>
-                                <th style="width: 50%;">Actividad</th>
-                                <th style="width: 35%;">Estado</th>
-                                <th style="width: 10%;">HH</th>
-                            </tr>
-                        </thead>
-                        <tbody id="actividadesTable">
-                            <tr>
-                                <td>1</td>
-                                <td><input type="text" class="table-input" placeholder="Descripción actividad"></td>
-                                <td>
-                                    <select class="table-input">
-                                        <option>Seleccionar</option>
-                                        <option>✓ Completada</option>
-                                        <option>⏳ En Progreso</option>
-                                        <option>⚠️ Con Problemas</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input" step="0.5" value="0"></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td><input type="text" class="table-input" placeholder="Descripción actividad"></td>
-                                <td>
-                                    <select class="table-input">
-                                        <option>Seleccionar</option>
-                                        <option>✓ Completada</option>
-                                        <option>⏳ En Progreso</option>
-                                        <option>⚠️ Con Problemas</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input" step="0.5" value="0"></td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td><input type="text" class="table-input" placeholder="Descripción actividad"></td>
-                                <td>
-                                    <select class="table-input">
-                                        <option>Seleccionar</option>
-                                        <option>✓ Completada</option>
-                                        <option>⏳ En Progreso</option>
-                                        <option>⚠️ Con Problemas</option>
-                                    </select>
-                                </td>
-                                <td><input type="number" class="table-input" step="0.5" value="0"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- FOTOS -->
-                <div class="section-title">Evidencia Fotográfica</div>
-                
-                <div class="photo-section">
-                    <div class="photo-input">
-                        <span class="photo-label">Foto 1 - Estado Inicial</span>
-                        <input type="file" id="photo1" accept="image/*">
-                        <img id="photoPreview1" class="photo-preview" style="display:none;">
-                    </div>
-                    <div class="photo-input">
-                        <span class="photo-label">Foto 2 - Proceso</span>
-                        <input type="file" id="photo2" accept="image/*">
-                        <img id="photoPreview2" class="photo-preview" style="display:none;">
-                    </div>
-                    <div class="photo-input">
-                        <span class="photo-label">Foto 3 - Pruebas</span>
-                        <input type="file" id="photo3" accept="image/*">
-                        <img id="photoPreview3" class="photo-preview" style="display:none;">
-                    </div>
-                    <div class="photo-input">
-                        <span class="photo-label">Foto 4 - Estado Final</span>
-                        <input type="file" id="photo4" accept="image/*">
-                        <img id="photoPreview4" class="photo-preview" style="display:none;">
-                    </div>
-                </div>
-
-                <!-- ACEPTACIÓN -->
-                <div class="section-title">Aceptación</div>
-                
-                <div class="form-group">
-                    <label for="aceptaQuien">Aceptado por (Supervisor/Cliente) *</label>
-                    <input type="text" id="aceptaQuien" required>
-                </div>
-
-                <!-- FIRMAS -->
-                <div class="signatures-section">
-                    <h3 style="color: #003d82; margin-bottom: 15px;">Firmas Autorizadas</h3>
-                    <div class="signatures-grid">
-                        <div class="signature-block">
-                            <div class="signature-label">Firma Mecánico</div>
-                            <canvas id="firmaMecanico"></canvas>
-                            <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaMecanico')">Limpiar</button>
-                        </div>
-                        <div class="signature-block">
-                            <div class="signature-label">Firma Supervisor</div>
-                            <canvas id="firmaSupervisor"></canvas>
-                            <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaSupervisor')">Limpiar</button>
-                        </div>
-                        <div class="signature-block">
-                            <div class="signature-label">Firma Aceptación</div>
-                            <canvas id="firmaAceptacion"></canvas>
-                            <button type="button" class="btn-clear-sig" onclick="limpiarFirma('firmaAceptacion')">Limpiar</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- BOTONES -->
-                <div class="button-group">
-                    <button type="button" class="btn-save" onclick="guardarLocal()">💾 Guardar</button>
-                    <button type="button" class="btn-load" onclick="cargarLocal()">📂 Cargar</button>
-                </div>
-                
-                <button type="button" class="btn-pdf" onclick="exportarPDF()">📄 Exportar PDF y Subir a Drive</button>
-                
-                <button type="button" class="btn-clear" onclick="limpiarForm()" style="width: 100%; margin-top: 10px;">🗑️ Limpiar Formulario</button>
-
-                <!-- ESTADO -->
-                <div id="statusMsg" class="status-msg"></div>
-            </form>
+        <div class="form-group">
+            <label class="required">Disciplina</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="Mecánico"> Mecánico</label>
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="Eléctrico"> Eléctrico</label>
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="A/C"> A/C</label>
+                <label class="checkbox-item"><input type="checkbox" name="disc" value="Hidráulico"> Hidráulico</label>
+            </div>
         </div>
     </div>
 
-    <script>
-        // ⭐ URL DEL BACKEND
-        const BACKEND_URL = "https://roca-reportes-server.onrender.com";
+    <div class="grid-2">
+        <div class="form-group"><label>HH Asignadas</label><input type="text" id="hh_asignadas" placeholder="0"></div>
+        <div class="form-group"><label>HH Ejecutadas</label><input type="text" id="hh_ejecutadas" placeholder="0"></div>
+    </div>
 
-        // Establecer fecha actual
-        document.getElementById('fecha').valueAsDate = new Date();
+    <div class="form-group" style="margin-bottom: 20px;">
+        <label class="required">Descripción del Trabajo</label>
+        <textarea id="descripcion_trabajo" rows="3" required></textarea>
+    </div>
 
-        // Configurar firma en canvas
-        function inicializarFirma(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            const ctx = canvas.getContext('2d');
-            let dibujando = false;
-
-            canvas.addEventListener('mousedown', () => { dibujando = true; });
-            canvas.addEventListener('mouseup', () => { dibujando = false; });
-            canvas.addEventListener('mousemove', (e) => {
-                if (!dibujando) return;
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                ctx.fillStyle = '#000';
-                ctx.fillRect(x, y, 2, 2);
-            });
-
-            canvas.addEventListener('touchstart', () => { dibujando = true; });
-            canvas.addEventListener('touchend', () => { dibujando = false; });
-            canvas.addEventListener('touchmove', (e) => {
-                if (!dibujando) return;
-                const rect = canvas.getBoundingClientRect();
-                const touch = e.touches[0];
-                const x = touch.clientX - rect.left;
-                const y = touch.clientY - rect.top;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#000';
-                ctx.fillRect(x, y, 2, 2);
-            });
-        }
-
-        function limpiarFirma(canvasId) {
-            const canvas = document.getElementById(canvasId);
-            canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // Cargar fotos
-        ['photo1', 'photo2', 'photo3', 'photo4'].forEach((id, i) => {
-            document.getElementById(id).addEventListener('change', (e) => {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    document.getElementById(`photoPreview${i + 1}`).src = event.target.result;
-                    document.getElementById(`photoPreview${i + 1}`).style.display = 'block';
-                };
-                reader.readAsDataURL(e.target.files[0]);
-            });
-        });
-
-        // Guardar y cargar datos
-        function guardarLocal() {
-            const datos = {
-                repNo: document.getElementById('repNo').value,
-                fecha: document.getElementById('fecha').value,
-                responsable: document.getElementById('responsable').value,
-                supervisor: document.getElementById('supervisor').value,
-                tag: document.getElementById('tag').value,
-                cliente: document.getElementById('cliente').value,
-                tipo: document.querySelector('input[name="tipo"]:checked').value,
-                disciplina: document.querySelector('input[name="disciplina"]:checked').value,
-                hhAsig: document.getElementById('hhAsig').value,
-                hhEjec: document.getElementById('hhEjec').value,
-                descripcion: document.getElementById('descripcion').value,
-                observaciones: document.getElementById('observaciones').value,
-                aceptaQuien: document.getElementById('aceptaQuien').value
-            };
-            localStorage.setItem('reporteFormData', JSON.stringify(datos));
-            mostrarEstado('✅ Datos guardados localmente', 'success');
-        }
-
-        function cargarLocal() {
-            const datos = JSON.parse(localStorage.getItem('reporteFormData'));
-            if (datos) {
-                document.getElementById('repNo').value = datos.repNo;
-                document.getElementById('fecha').value = datos.fecha;
-                document.getElementById('responsable').value = datos.responsable;
-                document.getElementById('supervisor').value = datos.supervisor;
-                document.getElementById('tag').value = datos.tag;
-                document.getElementById('cliente').value = datos.cliente;
-                document.querySelector(`input[name="tipo"][value="${datos.tipo}"]`).checked = true;
-                document.querySelector(`input[name="disciplina"][value="${datos.disciplina}"]`).checked = true;
-                document.getElementById('hhAsig').value = datos.hhAsig;
-                document.getElementById('hhEjec').value = datos.hhEjec;
-                document.getElementById('descripcion').value = datos.descripcion;
-                document.getElementById('observaciones').value = datos.observaciones;
-                document.getElementById('aceptaQuien').value = datos.aceptaQuien;
-                mostrarEstado('✅ Datos cargados', 'success');
-            } else {
-                mostrarEstado('⚠️ No hay datos guardados', 'error');
-            }
-        }
-
-        function limpiarForm() {
-            document.getElementById('reporteForm').reset();
-            document.getElementById('fecha').valueAsDate = new Date();
-            ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(id => limpiarFirma(id));
-            mostrarEstado('✅ Formulario limpiado', 'info');
-        }
-
-        function mostrarEstado(msg, tipo) {
-            const el = document.getElementById('statusMsg');
-            el.textContent = msg;
-            el.className = `status-msg ${tipo}`;
-            el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, 4000);
-        }
-
-        // EXPORTAR PDF
-        function exportarPDF() {
-            const repNo = document.getElementById('repNo').value.trim();
-            if (!repNo) {
-                mostrarEstado('⚠️ Completa al menos: No. Reporte, Fecha, Responsable, Supervisor, Tag Equipo', 'error');
-                return;
-            }
-
-            mostrarEstado('⏳ Generando PDF...', 'info');
-
-            const element = document.getElementById('reporteForm');
-            const opt = {
-                margin: [15, 15, 15, 15],
-                filename: `reporte_${repNo}.pdf`,
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { 
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    windowHeight: 1400,
-                    windowWidth: 816
-                },
-                jsPDF: { 
-                    orientation: 'portrait', 
-                    unit: 'mm', 
-                    format: 'letter',
-                    compress: true
-                },
-                pagebreak: { 
-                    mode: ['avoid-all', 'css', 'legacy'],
-                    avoid: ['table', '.signatures-grid', '.photo-section']
+    <div class="section-title">📋 Actividades Realizadas</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40px; text-align: center;">#</th>
+                <th style="width: 60%;">Actividad</th>
+                <th style="width: 25%;">Estado</th>
+                <th style="width: 15%; text-align: center;">HH</th>
+            </tr>
+        </thead>
+        <tbody>
+            <script>
+                for(let i=1; i<=6; i++) {
+                    document.write(`
+                        <tr>
+                            <td style="text-align: center; font-weight: bold; color: #666;">${i}</td>
+                            <td><input type="text" id="act_desc_${i}" style="border:none; background:transparent;" placeholder="Descripción..."></td>
+                            <td>
+                                <select id="act_est_${i}">
+                                    <option value="">-- Seleccionar --</option>
+                                    <option value="Completada">✓ Completada</option>
+                                    <option value="Parcial">◐ Parcial</option>
+                                    <option value="Pendiente">✗ Pendiente</option>
+                                </select>
+                            </td>
+                            <td><input type="text" id="act_hh_${i}" style="border:none; background:transparent; text-align:center;" placeholder="0"></td>
+                        </tr>
+                    `);
                 }
-            };
+            </script>
+        </tbody>
+    </table>
 
-            setTimeout(() => {
-                html2pdf()
-                    .set(opt)
-                    .from(element)
-                    .toPdf()
-                    .get('pdf')
-                    .then((pdfObj) => {
-                        const pdfDataUrl = pdfObj.output('dataurlstring');
-                        mostrarEstado('📤 Enviando a Drive...', 'info');
-                        
-                        fetch(`${BACKEND_URL}/api/upload-pdf`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                pdf: pdfDataUrl,
-                                filename: `reporte_${repNo}_${new Date().getTime()}.pdf`
-                            })
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                mostrarEstado(`✅ Reporte subido a Drive: ${data.message}`, 'success');
-                                setTimeout(() => limpiarForm(), 2000);
-                            } else {
-                                mostrarEstado(`❌ Error: ${data.error}`, 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            mostrarEstado('❌ Error conexión. Verifica que Render esté disponible.', 'error');
-                        });
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        mostrarEstado('❌ Error generando PDF', 'error');
-                    });
-            }, 300);
-        }
+    <div class="section-title">✍ Firmas Requeridas</div>
+    <div class="signature-grid">
+        <div>
+            <label class="required">Firma Mecánico</label>
+            <div class="signature-area"><canvas id="canvas-mecanico"></canvas></div>
+            <button class="btn-clear" onclick="padMecanico.clear()">Limpiar</button>
+        </div>
+        <div>
+            <label class="required">Firma Supervisor</label>
+            <div class="signature-area"><canvas id="canvas-supervisor"></canvas></div>
+            <button class="btn-clear" onclick="padSupervisor.clear()">Limpiar</button>
+        </div>
+    </div>
+    
+    <div style="margin-top: 15px; margin-bottom: 20px;">
+        <label class="required">Firma: Aceptó Mantenimiento</label>
+        <input type="text" id="nombre_acepto" placeholder="Nombre de quien acepta" style="margin-bottom:10px; max-width: 400px;">
+        <div class="signature-area" style="max-width: 400px;"><canvas id="canvas-acepto"></canvas></div>
+        <button class="btn-clear" onclick="padAcepto.clear()">Limpiar</button>
+    </div>
 
-        // Inicializar firmas
-        ['firmaMecanico', 'firmaSupervisor', 'firmaAceptacion'].forEach(id => inicializarFirma(id));
-    </script>
-</body>
-</html>
+    <div class="actions-bar">
+        <button class="btn-main btn-save-local" onclick="guardarLocal()">💾 Guardar Local</button>
+        <button class="btn-main btn-load-local" onclick="cargarLocal()">📂 Cargar</button>
+        <button class="btn-main btn-submit" id="btn-enviar" onclick="procesarYEnviarPDF()">📄 Exportar a PDF y Subir a Drive</button>
+    </div>
+</div>
+
+<script>
+    let padMecanico, padSupervisor, padAcepto;
+    
+    function inicializarFirmas() {
+        padMecanico = new SignaturePad(document.getElementById('canvas-mecanico'));
+        padSupervisor = new SignaturePad(document.getElementById('canvas-supervisor'));
+        padAcepto = new SignaturePad(document.getElementById('canvas-acepto'));
+    }
+
+    function ajustarCanvas() {
